@@ -4,7 +4,7 @@ use pyo3::{
     prelude::*,
 };
 use pyo3_stub_gen::derive::*;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Add, Deref, DerefMut, Sub};
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
@@ -20,7 +20,7 @@ enum Vec3ScaleOpsEnum {
 /// Supported types for vector operations on other vecs where scalars don't make sense
 /// example: dot, cross
 #[derive(FromPyObject)]
-pub enum Vec3VecOpsEnum {
+enum Vec3VecOpsEnum {
     DVec3(DVec3),
     Vec3(Vec3),
 }
@@ -28,9 +28,10 @@ pub enum Vec3VecOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
+        #[repr(transparent)]
         #[gen_stub_pyclass]
         #[pyclass]
-        #[derive(Clone)]
+        #[derive(Clone, Copy)]
         pub struct $py_class_name($glam_class_name);
 
         impl $py_class_name {
@@ -355,6 +356,16 @@ macro_rules! vec3_glam_wrapper {
                 self.0
             }
         }
+        impl From<$glam_class_name> for $py_class_name {
+            fn from(value: $glam_class_name) -> Self {
+                Self(value)
+            }
+        }
+        impl From<&$glam_class_name> for $py_class_name {
+            fn from(value: &$glam_class_name) -> Self {
+                Self(value.clone())
+            }
+        }
         impl Deref for $py_class_name {
             type Target = $glam_class_name;
 
@@ -367,10 +378,85 @@ macro_rules! vec3_glam_wrapper {
                 &mut self.0
             }
         }
+
+        macro_rules! add_with_self {
+            ($a:ty, $b:ty) => {
+                impl Add<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn add(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 + rhs.0)
+                    }
+                }
+            };
+        }
+        add_with_self!($py_class_name, $py_class_name);
+        add_with_self!($py_class_name, &$py_class_name);
+        add_with_self!(&$py_class_name, $py_class_name);
+        add_with_self!(&$py_class_name, &$py_class_name);
+
+        macro_rules! add_with_glam {
+            ($a:ty, $b:ty) => {
+                impl Add<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn add(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 + rhs)
+                    }
+                }
+            };
+        }
+        add_with_glam!($glam_class_name, $py_class_name);
+        add_with_glam!(&$glam_class_name, $py_class_name);
+        add_with_glam!($glam_class_name, &$py_class_name);
+        add_with_glam!(&$glam_class_name, &$py_class_name);
+
+        macro_rules! sub_with_self {
+            ($a:ty, $b:ty) => {
+                impl Sub<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn sub(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 - rhs.0)
+                    }
+                }
+            };
+        }
+        sub_with_self!($py_class_name, $py_class_name);
+        sub_with_self!($py_class_name, &$py_class_name);
+        sub_with_self!(&$py_class_name, $py_class_name);
+        sub_with_self!(&$py_class_name, &$py_class_name);
+
+        macro_rules! sub_with_glam {
+            ($a:ty, $b:ty) => {
+                impl Sub<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn sub(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 - rhs)
+                    }
+                }
+            };
+        }
+        sub_with_glam!($glam_class_name, $py_class_name);
+        sub_with_glam!(&$glam_class_name, $py_class_name);
+        sub_with_glam!($glam_class_name, &$py_class_name);
+        sub_with_glam!(&$glam_class_name, &$py_class_name);
     }
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
 vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
+
+/// Creates a 3-dimensional f64 vector
+#[inline(always)]
+pub fn dvec3(x: f64, y: f64, z: f64) -> DVec3 {
+    DVec3::new(glam::dvec3(x, y, z))
+}
+/// Creates a 3-dimensional f32 vector
+#[inline(always)]
+pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
+    Vec3::new(glam::vec3(x, y, z))
+}
 
 #[cfg(test)]
 mod test_vec3 {
@@ -391,6 +477,23 @@ mod test_vec3 {
 
             let actual: glam::DVec3 = dvec3.into();
             assert_eq!(actual.x, 0.);
+        }
+
+        #[test]
+        fn test_simple_dvec3_api() {
+            let actual = dvec3(10., 10., 10.);
+            assert_eq!(actual.x, 10.);
+        }
+        #[test]
+        fn test_simple_vec3_api() {
+            let actual = vec3(10., 10., 10.);
+            assert_eq!(actual.x, 10.);
+        }
+
+        #[test]
+        fn test_add() {
+            let actual = dvec3(10., 10., 10.) + glam::dvec3(10., 10., 10.);
+            assert_eq!(actual.x, 20.);
         }
     }
 }

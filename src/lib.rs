@@ -2,7 +2,7 @@ mod vec3;
 use pyo3::prelude::*;
 use pyo3_stub_gen::define_stub_info_gatherer;
 
-pub use vec3::{DVec3, Vec3};
+pub use vec3::*;
 
 /// Simple linear algebra vector library
 #[pymodule]
