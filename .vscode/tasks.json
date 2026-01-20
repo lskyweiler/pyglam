@@ -1,0 +1,18 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Gen PyStubs",
+            "type": "shell",
+            "command": [
+                "cargo run stub_gen &&",
+                "uvx ruff format pyglam.pyi &&",
+                "uvx ruff check --select I --fix pyglam.pyi"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$rustc"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+[package]
+name = "pyglam"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "pyglam"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+pyo3 = "~0.27"
+glam = "~0.30"
+# bin/stub_gen deps
+env_logger = "~0.11"
+pyo3-stub-gen = { version = "~0.17", default-features = false }
