@@ -27,6 +27,7 @@ pub enum Vec3VecOpsEnum {
 
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
+        /// 3 Component vector xyz
         #[gen_stub_pyclass]
         #[pyclass]
         #[derive(Clone)]
@@ -370,7 +371,6 @@ macro_rules! vec3_glam_wrapper {
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
 vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
-// vec3_glam_wrapper!(IVec3, glam::IVec3, i32);
 
 #[cfg(test)]
 mod test_vec3 {
