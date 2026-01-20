@@ -69,4 +69,4 @@ docs/_build/
 
 .ruff_cache/
 
-benchmarks/
+.benchmarks/

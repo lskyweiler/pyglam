@@ -11,6 +11,15 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+authors = [
+    { name = "weiler", email = "lucas.l.weiler@leidos.com" },
+    { name = "molnar", email = "andrew.b.molnar@leidos.com" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+
+[project.urls]
+"Homepage" = "https://github.com/lskyweiler/pyglam"
 
 [dependency-groups]
 dev = [
