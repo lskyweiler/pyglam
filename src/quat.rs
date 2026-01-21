@@ -93,6 +93,16 @@ macro_rules! vec3_glam_wrapper {
                 $py_class_name(inner)
             }
 
+            /// Convert this quat to a 4 component tuple
+            /// 
+            /// # Returns
+            /// 
+            /// - `(float, float, float, float)` - XYZW tuple
+            /// 
+            fn to_tuple(&self) -> ($var_type, $var_type, $var_type, $var_type) {
+                (self.x, self.y, self.z, self.w)
+            }
+
             /// Multiply this quaternion with either another quaternion or a vector
             ///
             /// A quaternion multiplication means combining two rotations into a single rotation

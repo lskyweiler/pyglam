@@ -85,7 +85,7 @@ macro_rules! vec3_glam_wrapper {
             /// 
             /// # Returns
             /// 
-            /// - xyz: Tuple[x, y, z]
+            /// - `(float, float, float)` - XYZ tuple
             /// 
             fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
                 (self.x, self.y, self.z)
