@@ -465,12 +465,15 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             };
-
         }
         ops_with_glam!($glam_class_name, $py_class_name);
         ops_with_glam!(&$glam_class_name, $py_class_name);
         ops_with_glam!($glam_class_name, &$py_class_name);
         ops_with_glam!(&$glam_class_name, &$py_class_name);
+        ops_with_glam!($var_type, $py_class_name);
+        ops_with_glam!(&$var_type, $py_class_name);
+        ops_with_glam!($var_type, &$py_class_name);
+        ops_with_glam!(&$var_type, &$py_class_name);
     }
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
