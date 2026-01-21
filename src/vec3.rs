@@ -468,11 +468,13 @@ vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
 
 /// Creates a 3-dimensional f64 vector
 #[inline(always)]
+#[pyfunction]
 pub fn dvec3(x: f64, y: f64, z: f64) -> DVec3 {
     DVec3::new(glam::dvec3(x, y, z))
 }
 /// Creates a 3-dimensional f32 vector
 #[inline(always)]
+#[pyfunction]
 pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
     Vec3::new(glam::vec3(x, y, z))
 }

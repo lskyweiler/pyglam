@@ -292,11 +292,13 @@ vec3_glam_wrapper!(Quat, vec3::Vec3, glam::Quat, glam::Vec3, f32);
 
 /// Creates a 4-dimensional f64 quaternion
 #[inline(always)]
+#[pyfunction]
 pub fn dquat(x: f64, y: f64, z: f64, w: f64) -> DQuat {
     DQuat::new(glam::dquat(x, y, z, w))
 }
 /// Creates a 4-dimensional f32 quaternion
 #[inline(always)]
+#[pyfunction]
 pub fn quat(x: f32, y: f32, z: f32, w: f32) -> Quat {
     Quat::new(glam::quat(x, y, z, w))
 }
