@@ -81,6 +81,16 @@ macro_rules! vec3_glam_wrapper {
                 self.0.z = z;
             }
 
+            /// Convert this vector to a 3 component tuple
+            /// 
+            /// # Returns
+            /// 
+            /// - xyz: Tuple[x, y, z]
+            /// 
+            fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
+                (self.x, self.y, self.z)
+            }
+
             fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this + rhs
                 let this = self.0;
