@@ -379,7 +379,7 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        macro_rules! add_with_self {
+        macro_rules! ops_with_self {
             ($a:ty, $b:ty) => {
                 impl Add<$a> for $b {
                     type Output = $py_class_name;
@@ -388,31 +388,6 @@ macro_rules! vec3_glam_wrapper {
                         $py_class_name(self.0 + rhs.0)
                     }
                 }
-            };
-        }
-        add_with_self!($py_class_name, $py_class_name);
-        add_with_self!($py_class_name, &$py_class_name);
-        add_with_self!(&$py_class_name, $py_class_name);
-        add_with_self!(&$py_class_name, &$py_class_name);
-
-        macro_rules! add_with_glam {
-            ($a:ty, $b:ty) => {
-                impl Add<$a> for $b {
-                    type Output = $py_class_name;
-
-                    fn add(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 + rhs)
-                    }
-                }
-            };
-        }
-        add_with_glam!($glam_class_name, $py_class_name);
-        add_with_glam!(&$glam_class_name, $py_class_name);
-        add_with_glam!($glam_class_name, &$py_class_name);
-        add_with_glam!(&$glam_class_name, &$py_class_name);
-
-        macro_rules! sub_with_self {
-            ($a:ty, $b:ty) => {
                 impl Sub<$a> for $b {
                     type Output = $py_class_name;
 
@@ -422,13 +397,20 @@ macro_rules! vec3_glam_wrapper {
                 }
             };
         }
-        sub_with_self!($py_class_name, $py_class_name);
-        sub_with_self!($py_class_name, &$py_class_name);
-        sub_with_self!(&$py_class_name, $py_class_name);
-        sub_with_self!(&$py_class_name, &$py_class_name);
+        ops_with_self!($py_class_name, $py_class_name);
+        ops_with_self!($py_class_name, &$py_class_name);
+        ops_with_self!(&$py_class_name, $py_class_name);
+        ops_with_self!(&$py_class_name, &$py_class_name);
 
-        macro_rules! sub_with_glam {
+        macro_rules! ops_with_glam {
             ($a:ty, $b:ty) => {
+                impl Add<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn add(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 + rhs)
+                    }
+                }
                 impl Sub<$a> for $b {
                     type Output = $py_class_name;
 
@@ -437,11 +419,12 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             };
+
         }
-        sub_with_glam!($glam_class_name, $py_class_name);
-        sub_with_glam!(&$glam_class_name, $py_class_name);
-        sub_with_glam!($glam_class_name, &$py_class_name);
-        sub_with_glam!(&$glam_class_name, &$py_class_name);
+        ops_with_glam!($glam_class_name, $py_class_name);
+        ops_with_glam!(&$glam_class_name, $py_class_name);
+        ops_with_glam!($glam_class_name, &$py_class_name);
+        ops_with_glam!(&$glam_class_name, &$py_class_name);
     }
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
