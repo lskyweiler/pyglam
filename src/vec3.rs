@@ -4,7 +4,7 @@ use pyo3::{
     prelude::*,
 };
 use pyo3_stub_gen::derive::*;
-use std::ops::{Add, Deref, DerefMut, Sub};
+use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
@@ -32,7 +32,7 @@ macro_rules! vec3_glam_wrapper {
         #[gen_stub_pyclass]
         #[pyclass]
         #[derive(Clone, Copy)]
-        pub struct $py_class_name($glam_class_name);
+        pub struct $py_class_name(pub(crate) $glam_class_name);
 
         impl $py_class_name {
             pub fn new(vec: $glam_class_name) -> Self {
@@ -351,21 +351,29 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        impl Into<$glam_class_name> for $py_class_name {
-            fn into(self) -> $glam_class_name {
-                self.0
-            }
+        macro_rules! into_glam {
+            ($a:ty, $b:ty) => {
+                impl Into<$a> for $b {
+                    fn into(self) -> $a {
+                        self.0
+                    }
+                }
+            };
         }
-        impl From<$glam_class_name> for $py_class_name {
-            fn from(value: $glam_class_name) -> Self {
-                Self(value)
-            }
+        into_glam!($glam_class_name, $py_class_name);
+        into_glam!($glam_class_name, &$py_class_name);
+        macro_rules! from_glam {
+            ($a:ty, $b:ty) => {
+                impl From<$a> for $b {
+                    fn from(value: $a) -> Self {
+                        Self(value.clone())
+                    }
+                }
+            };
         }
-        impl From<&$glam_class_name> for $py_class_name {
-            fn from(value: &$glam_class_name) -> Self {
-                Self(value.clone())
-            }
-        }
+        from_glam!($glam_class_name, $py_class_name);
+        from_glam!(&$glam_class_name, $py_class_name);
+
         impl Deref for $py_class_name {
             type Target = $glam_class_name;
 
@@ -395,6 +403,20 @@ macro_rules! vec3_glam_wrapper {
                         $py_class_name(self.0 - rhs.0)
                     }
                 }
+                impl Mul<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn mul(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 * rhs.0)
+                    }
+                }
+                impl Div<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn div(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 / rhs.0)
+                    }
+                }
             };
         }
         ops_with_self!($py_class_name, $py_class_name);
@@ -416,6 +438,20 @@ macro_rules! vec3_glam_wrapper {
 
                     fn sub(self, rhs: $a) -> Self::Output {
                         $py_class_name(self.0 - rhs)
+                    }
+                }
+                impl Mul<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn mul(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 * rhs)
+                    }
+                }
+                impl Div<$a> for $b {
+                    type Output = $py_class_name;
+
+                    fn div(self, rhs: $a) -> Self::Output {
+                        $py_class_name(self.0 / rhs)
                     }
                 }
             };
@@ -477,6 +513,21 @@ mod test_vec3 {
         fn test_add() {
             let actual = dvec3(10., 10., 10.) + glam::dvec3(10., 10., 10.);
             assert_eq!(actual.x, 20.);
+        }
+        #[test]
+        fn test_sub() {
+            let actual = dvec3(10., 10., 10.) - glam::dvec3(10., 10., 10.);
+            assert_eq!(actual.x, 0.);
+        }
+        #[test]
+        fn test_mul() {
+            let actual = dvec3(10., 10., 10.) * glam::dvec3(10., 10., 10.);
+            assert_eq!(actual.x, 100.);
+        }
+        #[test]
+        fn test_div() {
+            let actual = dvec3(10., 10., 10.) / glam::dvec3(10., 10., 10.);
+            assert_eq!(actual.x, 1.);
         }
     }
 }
