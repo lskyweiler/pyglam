@@ -10,8 +10,10 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 either = "~1.15"
-pyo3 = { version = "~0.27", features = ["either"] }
+pyo3 = { version = "~0.27", default-features = false, features = ["either"] }
 glam = "~0.30"
 # bin/stub_gen deps
 env_logger = "~0.11"
-pyo3-stub-gen = { version = "~0.17", features = ["either"] }
+pyo3-stub-gen = { version = "~0.17", default-features = false, features = [
+    "either",
+] }
