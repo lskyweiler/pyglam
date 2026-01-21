@@ -5,7 +5,106 @@ import builtins
 import typing
 
 @typing.final
+class DQuat:
+    r"""
+    4 Component Quaternion wxyz
+    """
+    def __new__(
+        cls, x: builtins.float, y: builtins.float, z: builtins.float, w: builtins.float
+    ) -> DQuat:
+        r"""
+        Create a new quaternion from components.
+        Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
+
+        # Arguments
+
+        - `x` (`float`) - x component
+        - `y` (`float`) - y component
+        - `z` (`float`) - z component
+        - `w` (`float`) - scalar component
+
+        # Returns
+
+        - `PyResult<Self>` - Describe the return value.
+        """
+    @staticmethod
+    def from_axis_angle(axis: DVec3, angle: builtins.float) -> DQuat:
+        r"""
+        Create a new quaternion from an axis and angle
+
+        # Arguments
+
+        - `axis` (`vec3`) - Axis, should be normalized
+        - `angle` (`float`) - Angle in radians
+
+        # Returns
+
+        - `PyResult<Self>` - Quaternion describing this axis/angle rotation
+        """
+    @staticmethod
+    def from_rotation_arc(from_: DVec3, to: DVec3) -> DQuat:
+        r"""
+        Gets the minimal rotation for transforming `from` to `to`.  The rotation is in the
+        plane spanned by the two vectors.  Will rotate at most 180 degrees.
+
+        `from_rotation_arc(from, to) * from ≈ to`.
+
+        For near-singular cases (from≈to and from≈-to) the current implementation
+        is only accurate to about 0.001 (for `f32`).
+
+        # Arguments
+
+        - `from_` (`vec3`) - starting vector. Must be a unit vector
+        - `to` (`vec3`) - ending vector. Must be a unit vector
+
+        # Returns
+
+        - `PyResult<Self>` - Returns a quaternion that would rotate vector from onto to
+        """
+    def __mul__(self, rhs: typing.Any) -> typing.Union[DQuat, DVec3]:
+        r"""
+        Multiply this quaternion with either another quaternion or a vector
+
+        A quaternion multiplication means combining two rotations into a single rotation
+        A vector multiplication yields a rotated vec3
+
+        # Arguments
+
+        - `rhs` (`Bound<'_, PyAny>`) - Quat or Vec to multiply
+
+        # Returns
+
+        - `PyResult<Either<, >>` - Either a new rotation or a rotated vector
+        """
+    def __rmul__(self, lhs: typing.Any) -> typing.Union[DQuat, DVec3]:
+        r"""
+        Multiply this quaternion with either another quaternion or a vec3
+
+        Order doesn't matter for multiplying a vector and a quat, but order matters for multiplying two quats
+
+        # Arguments
+
+        - `lhs` (`Bound<'_, PyAny>`) - left hand side multiplicand
+
+        # Returns
+
+        - `PyResult<Either<, >>` - Either a quat equivalent to the combined rotation or a rotated vector
+        """
+    def normalize(self) -> DQuat:
+        r"""
+        Normalize this quaternion into a unit quat
+        """
+    def conjugate(self) -> DQuat:
+        r"""
+        Compute the conjugate of this quat.
+        If this is a unit quat, the conjugate is equal to the inverse of the rotation
+        """
+
+@typing.final
 class DVec3:
+    r"""
+    3 Component vector xyz
+    """
     @property
     def x(self) -> builtins.float: ...
     @x.setter
@@ -43,7 +142,106 @@ class DVec3:
     def cross(self, rhs: typing.Any) -> DVec3: ...
 
 @typing.final
+class Quat:
+    r"""
+    4 Component Quaternion wxyz
+    """
+    def __new__(
+        cls, x: builtins.float, y: builtins.float, z: builtins.float, w: builtins.float
+    ) -> Quat:
+        r"""
+        Create a new quaternion from components.
+        Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
+
+        # Arguments
+
+        - `x` (`float`) - x component
+        - `y` (`float`) - y component
+        - `z` (`float`) - z component
+        - `w` (`float`) - scalar component
+
+        # Returns
+
+        - `PyResult<Self>` - Describe the return value.
+        """
+    @staticmethod
+    def from_axis_angle(axis: Vec3, angle: builtins.float) -> Quat:
+        r"""
+        Create a new quaternion from an axis and angle
+
+        # Arguments
+
+        - `axis` (`vec3`) - Axis, should be normalized
+        - `angle` (`float`) - Angle in radians
+
+        # Returns
+
+        - `PyResult<Self>` - Quaternion describing this axis/angle rotation
+        """
+    @staticmethod
+    def from_rotation_arc(from_: Vec3, to: Vec3) -> Quat:
+        r"""
+        Gets the minimal rotation for transforming `from` to `to`.  The rotation is in the
+        plane spanned by the two vectors.  Will rotate at most 180 degrees.
+
+        `from_rotation_arc(from, to) * from ≈ to`.
+
+        For near-singular cases (from≈to and from≈-to) the current implementation
+        is only accurate to about 0.001 (for `f32`).
+
+        # Arguments
+
+        - `from_` (`vec3`) - starting vector. Must be a unit vector
+        - `to` (`vec3`) - ending vector. Must be a unit vector
+
+        # Returns
+
+        - `PyResult<Self>` - Returns a quaternion that would rotate vector from onto to
+        """
+    def __mul__(self, rhs: typing.Any) -> typing.Union[Quat, Vec3]:
+        r"""
+        Multiply this quaternion with either another quaternion or a vector
+
+        A quaternion multiplication means combining two rotations into a single rotation
+        A vector multiplication yields a rotated vec3
+
+        # Arguments
+
+        - `rhs` (`Bound<'_, PyAny>`) - Quat or Vec to multiply
+
+        # Returns
+
+        - `PyResult<Either<, >>` - Either a new rotation or a rotated vector
+        """
+    def __rmul__(self, lhs: typing.Any) -> typing.Union[Quat, Vec3]:
+        r"""
+        Multiply this quaternion with either another quaternion or a vec3
+
+        Order doesn't matter for multiplying a vector and a quat, but order matters for multiplying two quats
+
+        # Arguments
+
+        - `lhs` (`Bound<'_, PyAny>`) - left hand side multiplicand
+
+        # Returns
+
+        - `PyResult<Either<, >>` - Either a quat equivalent to the combined rotation or a rotated vector
+        """
+    def normalize(self) -> Quat:
+        r"""
+        Normalize this quaternion into a unit quat
+        """
+    def conjugate(self) -> Quat:
+        r"""
+        Compute the conjugate of this quat.
+        If this is a unit quat, the conjugate is equal to the inverse of the rotation
+        """
+
+@typing.final
 class Vec3:
+    r"""
+    3 Component vector xyz
+    """
     @property
     def x(self) -> builtins.float: ...
     @x.setter

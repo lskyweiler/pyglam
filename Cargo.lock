@@ -499,6 +499,7 @@ dependencies = [
 name = "pyglam"
 version = "0.1.0"
 dependencies = [
+ "either",
  "env_logger",
  "glam",
  "pyo3",
@@ -511,6 +512,7 @@ version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab53c047fcd1a1d2a8820fe84f05d6be69e9526be40cb03b73f86b6b03e6d87d"
 dependencies = [
+ "either",
  "indoc",
  "libc",
  "memoffset",
@@ -574,6 +576,7 @@ checksum = "398b833826a83ca72c1e26d1b2c7c71f9ca7c3bfc74eacc663901895c362ae33"
 dependencies = [
  "anyhow",
  "chrono",
+ "either",
  "indexmap",
  "inventory",
  "itertools 0.14.0",
