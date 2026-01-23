@@ -93,6 +93,16 @@ macro_rules! vec3_glam_wrapper {
                 $py_class_name(inner)
             }
 
+            /// Convert this quat to a 4 component tuple
+            ///
+            /// # Returns
+            ///
+            /// - `(float, float, float, float)` - XYZW tuple
+            ///
+            fn to_tuple(&self) -> ($var_type, $var_type, $var_type, $var_type) {
+                (self.x, self.y, self.z, self.w)
+            }
+
             /// Multiply this quaternion with either another quaternion or a vector
             ///
             /// A quaternion multiplication means combining two rotations into a single rotation
@@ -157,17 +167,17 @@ macro_rules! vec3_glam_wrapper {
                 }
             }
             /// Multiply this quaternion with either another quaternion or a vec3
-            /// 
+            ///
             /// Order doesn't matter for multiplying a vector and a quat, but order matters for multiplying two quats
-            /// 
+            ///
             /// # Arguments
-            /// 
+            ///
             /// - `lhs` (`Bound<'_, PyAny>`) - left hand side multiplicand
-            /// 
+            ///
             /// # Returns
-            /// 
+            ///
             /// - `PyResult<Either<, >>` - Either a quat equivalent to the combined rotation or a rotated vector
-            /// 
+            ///
             fn __rmul__(
                 &mut self,
                 lhs: Bound<'_, PyAny>,
@@ -262,6 +272,13 @@ macro_rules! vec3_glam_wrapper {
 
                     fn mul(self, rhs: $a) -> Self::Output {
                         $py_class_name(self.0 * rhs)
+                    }
+                }
+                impl Mul<$b> for $a {
+                    type Output = $py_class_name;
+
+                    fn mul(self, rhs: $b) -> Self::Output {
+                        $py_class_name(self * rhs.0)
                     }
                 }
             };

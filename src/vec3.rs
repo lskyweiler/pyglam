@@ -81,6 +81,16 @@ macro_rules! vec3_glam_wrapper {
                 self.0.z = z;
             }
 
+            /// Convert this vector to a 3 component tuple
+            /// 
+            /// # Returns
+            /// 
+            /// - `(float, float, float)` - XYZ tuple
+            /// 
+            fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
+                (self.x, self.y, self.z)
+            }
+
             fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this + rhs
                 let this = self.0;
@@ -455,12 +465,15 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             };
-
         }
         ops_with_glam!($glam_class_name, $py_class_name);
         ops_with_glam!(&$glam_class_name, $py_class_name);
         ops_with_glam!($glam_class_name, &$py_class_name);
         ops_with_glam!(&$glam_class_name, &$py_class_name);
+        ops_with_glam!($var_type, $py_class_name);
+        ops_with_glam!(&$var_type, $py_class_name);
+        ops_with_glam!($var_type, &$py_class_name);
+        ops_with_glam!(&$var_type, &$py_class_name);
     }
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
