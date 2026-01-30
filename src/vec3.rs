@@ -22,6 +22,7 @@ enum Vec3ScaleOpsEnum {
 #[derive(FromPyObject)]
 enum Vec3VecOpsEnum {
     DVec3(DVec3),
+    #[cfg(feature = "f32")]
     Vec3(Vec3),
 }
 
@@ -338,6 +339,7 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
                         return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
+                    #[cfg(feature = "f32")]
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
                         return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
@@ -351,6 +353,7 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
                         return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
                     }
+                    #[cfg(feature = "f32")]
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
                         return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
                     }
@@ -477,6 +480,7 @@ macro_rules! vec3_glam_wrapper {
     }
 }
 vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
+#[cfg(feature = "f32")]
 vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
 
 /// Creates a 3-dimensional f64 vector
@@ -485,6 +489,7 @@ vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
 pub fn dvec3(x: f64, y: f64, z: f64) -> DVec3 {
     DVec3::new(glam::dvec3(x, y, z))
 }
+#[cfg(feature = "f32")]
 /// Creates a 3-dimensional f32 vector
 #[inline(always)]
 #[pyfunction]
@@ -518,6 +523,7 @@ mod test_vec3 {
             let actual = dvec3(10., 10., 10.);
             assert_eq!(actual.x, 10.);
         }
+        #[cfg(feature = "f32")]
         #[test]
         fn test_simple_vec3_api() {
             let actual = vec3(10., 10., 10.);
