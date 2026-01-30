@@ -28,7 +28,7 @@ mod pyglam {
     use crate::vec3::vec3;
 }
 
-#[cfg(feature = "stub-gen")]
-use pyo3_stub_gen::define_stub_info_gatherer;
-#[cfg(feature = "stub-gen")]
-define_stub_info_gatherer!(stub_info);
+// #[cfg(feature = "stub-gen")]
+// use pyo3_stub_gen::define_stub_info_gatherer;
+// #[cfg(feature = "stub-gen")]
+// define_stub_info_gatherer!(stub_info);
