@@ -5,7 +5,7 @@
             "label": "Gen PyStubs",
             "type": "shell",
             "command": [
-                "cargo run stub_gen &&",
+                "cargo run --features=stub-gen stub_gen &&",
                 "uvx ruff format pyglam.pyi &&",
                 "uvx ruff check --select I --fix pyglam.pyi"
             ],

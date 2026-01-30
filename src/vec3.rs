@@ -3,7 +3,6 @@ use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
 };
-use pyo3_stub_gen::derive::*;
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
@@ -29,7 +28,8 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
         #[repr(transparent)]
-        #[gen_stub_pyclass]
+        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pyclass)]
+        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
         #[pyclass]
         #[derive(Clone, Copy)]
         pub struct $py_class_name(pub(crate) $glam_class_name);
@@ -40,7 +40,8 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[gen_stub_pymethods]
+        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pymethods)]
+        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
         #[pymethods]
         impl $py_class_name {
             #[new]
@@ -82,11 +83,11 @@ macro_rules! vec3_glam_wrapper {
             }
 
             /// Convert this vector to a 3 component tuple
-            /// 
+            ///
             /// # Returns
-            /// 
+            ///
             /// - `(float, float, float)` - XYZ tuple
-            /// 
+            ///
             fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
                 (self.x, self.y, self.z)
             }

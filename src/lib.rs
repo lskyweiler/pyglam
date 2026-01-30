@@ -2,7 +2,6 @@ pub mod quat;
 pub mod vec3;
 
 use pyo3::prelude::*;
-use pyo3_stub_gen::define_stub_info_gatherer;
 
 pub use self::quat::*;
 pub use self::vec3::*;
@@ -29,4 +28,7 @@ mod pyglam {
     use crate::vec3::vec3;
 }
 
+#[cfg(feature = "stub-gen")]
+use pyo3_stub_gen::define_stub_info_gatherer;
+#[cfg(feature = "stub-gen")]
 define_stub_info_gatherer!(stub_info);

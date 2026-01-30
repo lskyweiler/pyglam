@@ -15,8 +15,18 @@ pyo3 = { version = "~0.27", default-features = false, features = [
     "extension-module",
 ] }
 glam = "~0.30"
+
 # bin/stub_gen deps
-env_logger = "~0.11"
+# THESE SHOULD BE OPTIONAL, BUT PYO3 FREAKS OUT WITH THE MACROS
+env_logger = { version = "~0.11" }
 pyo3-stub-gen = { version = "~0.18", default-features = false, features = [
     "either",
 ] }
+
+[[bin]]
+name = "stub_gen"
+doc = false
+required-features = ["stub-gen"]
+
+[features]
+stub-gen = []
