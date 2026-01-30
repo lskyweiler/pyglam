@@ -10,8 +10,10 @@ use std::ops::{Deref, DerefMut, Mul};
 #[derive(FromPyObject)]
 enum QuatOpsEnum {
     DVec3(vec3::DVec3),
+    #[cfg(feature = "f32")]
     Vec3(vec3::Vec3),
     DQuat(DQuat),
+    #[cfg(feature = "f32")]
     Quat(Quat),
 }
 
@@ -133,6 +135,7 @@ macro_rules! vec3_glam_wrapper {
                             ),
                         )));
                     }
+                    #[cfg(feature = "f32")]
                     Ok(QuatOpsEnum::Quat(quat)) => {
                         return Ok(Either::Left($py_class_name::new(
                             this * <$glam_class_name>::from_xyzw(
@@ -152,6 +155,7 @@ macro_rules! vec3_glam_wrapper {
                             ),
                         )));
                     }
+                    #[cfg(feature = "f32")]
                     Ok(QuatOpsEnum::Vec3(vec)) => {
                         return Ok(Either::Right(<$py_vec_class_name>::new(
                             this * <$glam_vec_class_name>::new(
@@ -305,6 +309,7 @@ macro_rules! vec3_glam_wrapper {
     };
 }
 vec3_glam_wrapper!(DQuat, vec3::DVec3, glam::DQuat, glam::DVec3, f64);
+#[cfg(feature = "f32")]
 vec3_glam_wrapper!(Quat, vec3::Vec3, glam::Quat, glam::Vec3, f32);
 
 /// Creates a 4-dimensional f64 quaternion
@@ -313,6 +318,7 @@ vec3_glam_wrapper!(Quat, vec3::Vec3, glam::Quat, glam::Vec3, f32);
 pub fn dquat(x: f64, y: f64, z: f64, w: f64) -> DQuat {
     DQuat::new(glam::dquat(x, y, z, w))
 }
+#[cfg(feature = "f32")]
 /// Creates a 4-dimensional f32 quaternion
 #[inline(always)]
 #[pyfunction]

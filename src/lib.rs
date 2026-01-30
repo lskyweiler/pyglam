@@ -13,20 +13,25 @@ mod pyglam {
     #[pymodule_export]
     use crate::quat::DQuat;
     #[pymodule_export]
-    use crate::quat::Quat;
-    #[pymodule_export]
     use crate::vec3::DVec3;
-    #[pymodule_export]
-    use crate::vec3::Vec3;
-
     #[pymodule_export]
     use crate::quat::dquat;
     #[pymodule_export]
-    use crate::quat::quat;
-    #[pymodule_export]
     use crate::vec3::dvec3;
+
+    #[cfg(feature = "f32")]
+    #[pymodule_export]
+    use crate::vec3::Vec3;
+    #[cfg(feature = "f32")]
     #[pymodule_export]
     use crate::vec3::vec3;
+
+    #[cfg(feature = "f32")]
+    #[pymodule_export]
+    use crate::quat::Quat;
+    #[cfg(feature = "f32")]
+    #[pymodule_export]
+    use crate::quat::quat;
 }
 
 define_stub_info_gatherer!(stub_info);
