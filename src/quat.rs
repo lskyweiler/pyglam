@@ -18,8 +18,7 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
         #[repr(transparent)]
-        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pyclass)]
-        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
+        #[pyo3_stub_gen::derive::gen_stub_pyclass]
         #[pyclass]
         #[derive(Clone, Copy)]
         pub struct $py_class_name($glam_class_name);
@@ -30,8 +29,7 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pymethods)]
-        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
+        #[pyo3_stub_gen::derive::gen_stub_pymethods]
         #[pymethods]
         impl $py_class_name {
             /// Create a new quaternion from components.

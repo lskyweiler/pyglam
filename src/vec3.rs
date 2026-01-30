@@ -28,8 +28,7 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
         #[repr(transparent)]
-        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pyclass)]
-        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
+        #[pyo3_stub_gen::derive::gen_stub_pyclass]
         #[pyclass]
         #[derive(Clone, Copy)]
         pub struct $py_class_name(pub(crate) $glam_class_name);
@@ -40,8 +39,7 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[cfg_attr(feature = "stub-gen", pyo3_stub_gen::derive::gen_stub_pymethods)]
-        #[cfg_attr(not(feature = "stub-gen"), pyo3_stub_gen::derive::remove_gen_stub)]
+        #[pyo3_stub_gen::derive::gen_stub_pymethods]
         #[pymethods]
         impl $py_class_name {
             #[new]
