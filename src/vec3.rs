@@ -328,13 +328,13 @@ macro_rules! vec3_glam_wrapper {
                 return $py_class_name::new(-self.0);
             }
 
-            pub fn normalize(&self) -> $py_class_name {
+            fn normalize(&self) -> $py_class_name {
                 return $py_class_name::new(self.0.normalize());
             }
-            pub fn length(&self) -> $var_type {
+            fn length(&self) -> $var_type {
                 return self.0.length();
             }
-            pub fn dot(&self, rhs: Bound<'_, PyAny>) -> PyResult<$var_type> {
+            fn dot(&self, rhs: Bound<'_, PyAny>) -> PyResult<$var_type> {
                 match rhs.extract::<Vec3VecOpsEnum>() {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
                         return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
@@ -348,7 +348,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            pub fn cross(&self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            fn cross(&self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 match rhs.extract::<Vec3VecOpsEnum>() {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
                         return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
