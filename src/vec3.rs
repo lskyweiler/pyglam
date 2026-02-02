@@ -56,6 +56,17 @@ macro_rules! vec3_glam_wrapper {
                 let inner = <$glam_class_name>::new(x, y.unwrap_or(x), z.unwrap_or(x));
                 Ok($py_class_name(inner))
             }
+            /// Generates a random unit vector, normalized to 1.
+            #[staticmethod]
+            pub fn rand_uv() ->  Self {
+                Self::new(
+                    <$glam_class_name>::new(
+                        rand::random(),
+                        rand::random(),
+                        rand::random(),
+                    )
+                ).normalize()
+            }
 
             #[getter]
             fn get_x(&self) -> $var_type {
@@ -83,11 +94,11 @@ macro_rules! vec3_glam_wrapper {
             }
 
             /// Convert this vector to a 3 component tuple
-            /// 
+            ///
             /// # Returns
-            /// 
+            ///
             /// - `(float, float, float)` - XYZ tuple
-            /// 
+            ///
             fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
                 (self.x, self.y, self.z)
             }

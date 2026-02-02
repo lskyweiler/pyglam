@@ -13,9 +13,9 @@ mod pyglam {
     #[pymodule_export]
     use crate::quat::DQuat;
     #[pymodule_export]
-    use crate::vec3::DVec3;
-    #[pymodule_export]
     use crate::quat::dquat;
+    #[pymodule_export]
+    use crate::vec3::DVec3;
     #[pymodule_export]
     use crate::vec3::dvec3;
 
