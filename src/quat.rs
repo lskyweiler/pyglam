@@ -2,7 +2,10 @@ use crate::vec3;
 use either::Either;
 use glam;
 use pyo3::{exceptions::PyNotImplementedError, prelude::*};
+#[cfg(not(feature = "py_bevy"))]
 use pyo3_stub_gen::derive::*;
+#[cfg(feature = "py_bevy")]
+use simple_py_bevy::prelude::*;
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -21,8 +24,9 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
         #[repr(transparent)]
-        #[gen_stub_pyclass]
-        #[pyclass]
+        #[cfg_attr(not(feature = "py_bevy"), pyclass)]
+        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pyclass)]
+        #[cfg_attr(feature = "py_bevy", simple_pyclass)]
         #[derive(Clone, Copy)]
         pub struct $py_class_name($glam_class_name);
 
@@ -32,8 +36,9 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[gen_stub_pymethods]
-        #[pymethods]
+        #[cfg_attr(feature = "py_bevy", simple_pymethods)]
+        #[cfg_attr(not(feature = "py_bevy"), pymethods)]
+        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pymethods)]
         impl $py_class_name {
             /// Create a new quaternion from components.
             /// Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
