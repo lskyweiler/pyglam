@@ -4635,7 +4635,7 @@ checksum = "e320a6c5ad31d271ad523dcf3ad13e2767ad8b1cb8f047f75a8aeaf8da139da2"
 [[package]]
 name = "simple-py-bevy"
 version = "0.1.0"
-source = "git+https://github.com/lskyweiler/simple-py-bevy#06df6483697f5610ac7c1c91cbe203615739d6fa"
+source = "git+https://github.com/lskyweiler/simple-py-bevy#9e6eb7b5b259f182a2cceee284cbcad69016f520"
 dependencies = [
  "bevy",
  "pyo3",
@@ -4645,7 +4645,7 @@ dependencies = [
 [[package]]
 name = "simple_py_bevy_derive"
 version = "0.1.0"
-source = "git+https://github.com/lskyweiler/simple-py-bevy#06df6483697f5610ac7c1c91cbe203615739d6fa"
+source = "git+https://github.com/lskyweiler/simple-py-bevy#9e6eb7b5b259f182a2cceee284cbcad69016f520"
 dependencies = [
  "darling",
  "proc-macro2",

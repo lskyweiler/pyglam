@@ -1,5 +1,3 @@
-#[cfg(feature = "py_bevy")]
-use bevy::prelude::*;
 use glam;
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
