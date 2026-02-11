@@ -4039,6 +4039,7 @@ dependencies = [
 name = "pyglam"
 version = "0.1.1"
 dependencies = [
+ "bevy",
  "either",
  "env_logger",
  "glam",

@@ -23,7 +23,8 @@ pyo3-stub-gen = { version = "~0.18", default-features = false, features = [
 rand = "~0.9"
 
 simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true }
+bevy = { version = "~0.17", optional = true }
 
 [features]
 f32 = []
-py_bevy = ["dep:simple-py-bevy", "simple-py-bevy/pyo3"]
+py_bevy = ["dep:simple-py-bevy", "dep:bevy", "simple-py-bevy/pyo3"]

@@ -1,4 +1,6 @@
 use crate::vec3;
+#[cfg(feature = "py_bevy")]
+use bevy::prelude::*;
 use either::Either;
 use glam;
 use pyo3::{exceptions::PyNotImplementedError, prelude::*};
@@ -26,17 +28,22 @@ macro_rules! vec3_glam_wrapper {
         #[repr(transparent)]
         #[cfg_attr(not(feature = "py_bevy"), pyclass)]
         #[cfg_attr(not(feature = "py_bevy"), gen_stub_pyclass)]
-        #[cfg_attr(feature = "py_bevy", simple_pyclass)]
+        // todo: need to decouple bevy from the reference implementation
+        #[cfg_attr(feature = "py_bevy", py_bevy_component)]
         #[derive(Clone, Copy)]
-        pub struct $py_class_name($glam_class_name);
+        pub struct $py_class_name {
+            // it would be better to have this as a single tuple struct, but need to update the macro to handle tuple structs
+            #[cfg_attr(feature = "py_bevy", py_bevy(skip))]
+            inner: $glam_class_name,
+        }
 
         impl $py_class_name {
             pub fn new(quat: $glam_class_name) -> Self {
-                Self(quat)
+                Self { inner: quat }
             }
         }
 
-        #[cfg_attr(feature = "py_bevy", simple_pymethods)]
+        #[cfg_attr(feature = "py_bevy", py_bevy_methods)]
         #[cfg_attr(not(feature = "py_bevy"), pymethods)]
         #[cfg_attr(not(feature = "py_bevy"), gen_stub_pymethods)]
         impl $py_class_name {
@@ -57,7 +64,7 @@ macro_rules! vec3_glam_wrapper {
             #[new]
             pub fn py_new(x: $var_type, y: $var_type, z: $var_type, w: $var_type) -> Self {
                 let inner = <$glam_class_name>::from_xyzw(x, y, z, w);
-                $py_class_name(inner)
+                $py_class_name { inner: inner }
             }
 
             /// Create a new quaternion from an axis and angle
@@ -74,7 +81,7 @@ macro_rules! vec3_glam_wrapper {
             #[staticmethod]
             pub fn from_axis_angle(axis: &$py_vec_class_name, angle: $var_type) -> Self {
                 let inner = <$glam_class_name>::from_axis_angle(axis.into(), angle);
-                $py_class_name(inner)
+                $py_class_name { inner: inner }
             }
 
             /// Gets the minimal rotation for transforming `from` to `to`.  The rotation is in the
@@ -97,7 +104,7 @@ macro_rules! vec3_glam_wrapper {
             #[staticmethod]
             pub fn from_rotation_arc(from_: &$py_vec_class_name, to: &$py_vec_class_name) -> Self {
                 let inner = <$glam_class_name>::from_rotation_arc(from_.into(), to.into());
-                $py_class_name(inner)
+                $py_class_name { inner: inner }
             }
 
             /// Convert this quat to a 4 component tuple
@@ -128,7 +135,7 @@ macro_rules! vec3_glam_wrapper {
                 rhs: Bound<'_, PyAny>,
             ) -> PyResult<Either<$py_class_name, $py_vec_class_name>> {
                 // this * rhs
-                let this = self.0;
+                let this = self.inner;
                 match rhs.extract::<QuatOpsEnum>() {
                     Ok(QuatOpsEnum::DQuat(dquat)) => {
                         return Ok(Either::Left($py_class_name::new(
@@ -197,12 +204,12 @@ macro_rules! vec3_glam_wrapper {
 
             /// Normalize this quaternion into a unit quat
             fn normalize(&self) -> $py_class_name {
-                $py_class_name::new(self.0.normalize())
+                $py_class_name::new(self.inner.normalize())
             }
             /// Compute the conjugate of this quat.
             /// If this is a unit quat, the conjugate is equal to the inverse of the rotation
             fn conjugate(&self) -> $py_class_name {
-                $py_class_name::new(self.0.conjugate())
+                $py_class_name::new(self.inner.conjugate())
             }
         }
 
@@ -210,7 +217,7 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl Into<$a> for $b {
                     fn into(self) -> $a {
-                        self.0
+                        self.inner
                     }
                 }
             };
@@ -221,7 +228,9 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl From<$a> for $b {
                     fn from(value: $a) -> Self {
-                        Self(value.clone())
+                        Self {
+                            inner: value.clone(),
+                        }
                     }
                 }
             };
@@ -233,12 +242,12 @@ macro_rules! vec3_glam_wrapper {
             type Target = $glam_class_name;
 
             fn deref(&self) -> &Self::Target {
-                &self.0
+                &self.inner
             }
         }
         impl DerefMut for $py_class_name {
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
+                &mut self.inner
             }
         }
 
@@ -248,7 +257,9 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 * rhs.0)
+                        $py_class_name {
+                            inner: self.inner * rhs.inner,
+                        }
                     }
                 }
             };
@@ -264,7 +275,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_vec_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        <$py_vec_class_name>::new(self.0 * rhs.0)
+                        <$py_vec_class_name>::new(self.inner * rhs.inner)
                     }
                 }
             };
@@ -280,14 +291,18 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 * rhs)
+                        $py_class_name {
+                            inner: self.inner * rhs,
+                        }
                     }
                 }
                 impl Mul<$b> for $a {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $b) -> Self::Output {
-                        $py_class_name(self * rhs.0)
+                        $py_class_name {
+                            inner: self * rhs.inner,
+                        }
                     }
                 }
             };
@@ -302,7 +317,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_vec_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        <$py_vec_class_name>::new(self.0 * rhs)
+                        <$py_vec_class_name>::new(self.inner * rhs)
                     }
                 }
             };

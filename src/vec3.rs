@@ -1,3 +1,5 @@
+#[cfg(feature = "py_bevy")]
+use bevy::prelude::*;
 use glam;
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
@@ -5,9 +7,9 @@ use pyo3::{
 };
 #[cfg(not(feature = "py_bevy"))]
 use pyo3_stub_gen::derive::*;
-use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 #[cfg(feature = "py_bevy")]
 use simple_py_bevy::*;
+use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
@@ -35,13 +37,16 @@ macro_rules! vec3_glam_wrapper {
         #[repr(transparent)]
         #[cfg_attr(not(feature = "py_bevy"), pyclass)]
         #[cfg_attr(not(feature = "py_bevy"), gen_stub_pyclass)]
-        #[cfg_attr(feature = "py_bevy", simple_pyclass)]
+        #[cfg_attr(feature = "py_bevy", py_bevy_component)]
         #[derive(Clone, Copy)]
-        pub struct $py_class_name(pub(crate) $glam_class_name);
+        pub struct $py_class_name {
+            #[cfg_attr(feature = "py_bevy", py_bevy(skip))]
+            pub(crate) inner: $glam_class_name
+        }
 
         impl $py_class_name {
             pub fn new(vec: $glam_class_name) -> Self {
-                Self(vec)
+                Self{inner:vec}
             }
         }
 
@@ -59,7 +64,7 @@ macro_rules! vec3_glam_wrapper {
                 }
 
                 let inner = <$glam_class_name>::new(x, y.unwrap_or(x), z.unwrap_or(x));
-                Ok($py_class_name(inner))
+                Ok($py_class_name{inner})
             }
             /// Generates a random unit vector, normalized to 1.
             #[staticmethod]
@@ -75,27 +80,27 @@ macro_rules! vec3_glam_wrapper {
 
             #[getter]
             fn get_x(&self) -> $var_type {
-                return self.0.x;
+                return self.inner.x;
             }
             #[getter]
             fn get_y(&self) -> $var_type {
-                return self.0.y;
+                return self.inner.y;
             }
             #[getter]
             fn get_z(&self) -> $var_type {
-                return self.0.z;
+                return self.inner.z;
             }
             #[setter]
             fn set_x(&mut self, x: $var_type) {
-                self.0.x = x;
+                self.inner.x = x;
             }
             #[setter]
             fn set_y(&mut self, y: $var_type) {
-                self.0.y = y;
+                self.inner.y = y;
             }
             #[setter]
             fn set_z(&mut self, z: $var_type) {
-                self.0.z = z;
+                self.inner.z = z;
             }
 
             /// Convert this vector to a 3 component tuple
@@ -110,7 +115,7 @@ macro_rules! vec3_glam_wrapper {
 
             pub fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this + rhs
-                let this = self.0;
+                let this = self.inner;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(this + scalar as $var_type));
@@ -135,7 +140,7 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __sub__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this - rhs
-                let this = self.0;
+                let this = self.inner;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(this - scalar as $var_type));
@@ -156,7 +161,7 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __rsub__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs - this
-                let this = self.0;
+                let this = self.inner;
                 match lhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(scalar as $var_type - this));
@@ -177,7 +182,7 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __mul__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this * rhs
-                let this = self.0;
+                let this = self.inner;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(this * scalar as $var_type));
@@ -202,7 +207,7 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __truediv__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this / rhs
-                let this = self.0;
+                let this = self.inner;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(this / scalar as $var_type));
@@ -223,7 +228,7 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __rtruediv__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs / this
-                let this = self.0;
+                let this = self.inner;
                 match lhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
                         return Ok($py_class_name::new(scalar as $var_type / this));
@@ -247,19 +252,19 @@ macro_rules! vec3_glam_wrapper {
                 // this += rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
-                        self.0 += scalar as $var_type;
+                        self.inner += scalar as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Int(i)) => {
-                        self.0 += i as $var_type;
+                        self.inner += i as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::DVec3(vec)) => {
-                        self.0 += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
-                        self.0 += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Err(e) => {
@@ -271,19 +276,19 @@ macro_rules! vec3_glam_wrapper {
                 // this -= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
-                        self.0 -= scalar as $var_type;
+                        self.inner -= scalar as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Int(i)) => {
-                        self.0 -= i as $var_type;
+                        self.inner -= i as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::DVec3(vec)) => {
-                        self.0 -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
-                        self.0 -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Err(e) => {
@@ -295,19 +300,19 @@ macro_rules! vec3_glam_wrapper {
                 // this *= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
-                        self.0 *= scalar as $var_type;
+                        self.inner *= scalar as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Int(i)) => {
-                        self.0 *= i as $var_type;
+                        self.inner *= i as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::DVec3(vec)) => {
-                        self.0 *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
-                        self.0 *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Err(e) => {
@@ -319,19 +324,19 @@ macro_rules! vec3_glam_wrapper {
                 // this *= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
-                        self.0 /= scalar as $var_type;
+                        self.inner /= scalar as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Int(i)) => {
-                        self.0 /= i as $var_type;
+                        self.inner /= i as $var_type;
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::DVec3(vec)) => {
-                        self.0 /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
-                        self.0 /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        self.inner /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
                     Err(e) => {
@@ -341,23 +346,23 @@ macro_rules! vec3_glam_wrapper {
             }
             pub fn __neg__(&mut self) -> $py_class_name {
                 // -this
-                return $py_class_name::new(-self.0);
+                return $py_class_name::new(-self.inner);
             }
 
             fn normalize(&self) -> $py_class_name {
-                return $py_class_name::new(self.0.normalize());
+                return $py_class_name::new(self.inner.normalize());
             }
             fn length(&self) -> $var_type {
-                return self.0.length();
+                return self.inner.length();
             }
             fn dot(&self, rhs: Bound<'_, PyAny>) -> PyResult<$var_type> {
                 match rhs.extract::<Vec3VecOpsEnum>() {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
-                        return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                        return Ok(self.inner.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
                     #[cfg(feature = "f32")]
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
-                        return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                        return Ok(self.inner.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
@@ -367,11 +372,11 @@ macro_rules! vec3_glam_wrapper {
             fn cross(&self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 match rhs.extract::<Vec3VecOpsEnum>() {
                     Ok(Vec3VecOpsEnum::DVec3(vec)) => {
-                        return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
+                        return Ok($py_class_name::new(self.inner.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
                     }
                     #[cfg(feature = "f32")]
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
-                        return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
+                        return Ok($py_class_name::new(self.inner.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
                     }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
@@ -384,7 +389,7 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl Into<$a> for $b {
                     fn into(self) -> $a {
-                        self.0
+                        self.inner
                     }
                 }
             };
@@ -395,7 +400,7 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl From<$a> for $b {
                     fn from(value: $a) -> Self {
-                        Self(value.clone())
+                        Self{inner:value.clone()}
                     }
                 }
             };
@@ -407,12 +412,12 @@ macro_rules! vec3_glam_wrapper {
             type Target = $glam_class_name;
 
             fn deref(&self) -> &Self::Target {
-                &self.0
+                &self.inner
             }
         }
         impl DerefMut for $py_class_name {
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.0
+                &mut self.inner
             }
         }
 
@@ -422,28 +427,28 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn add(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 + rhs.0)
+                        $py_class_name{inner: self.inner + rhs.inner}
                     }
                 }
                 impl Sub<$a> for $b {
                     type Output = $py_class_name;
 
                     fn sub(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 - rhs.0)
+                        $py_class_name{inner: self.inner - rhs.inner}
                     }
                 }
                 impl Mul<$a> for $b {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 * rhs.0)
+                        $py_class_name{inner: self.inner * rhs.inner}
                     }
                 }
                 impl Div<$a> for $b {
                     type Output = $py_class_name;
 
                     fn div(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 / rhs.0)
+                        $py_class_name{inner:self.inner / rhs.inner}
                     }
                 }
             };
@@ -459,28 +464,28 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn add(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 + rhs)
+                        $py_class_name{inner: self.inner + rhs}
                     }
                 }
                 impl Sub<$a> for $b {
                     type Output = $py_class_name;
 
                     fn sub(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 - rhs)
+                        $py_class_name{inner: self.inner - rhs}
                     }
                 }
                 impl Mul<$a> for $b {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 * rhs)
+                        $py_class_name{inner: self.inner * rhs}
                     }
                 }
                 impl Div<$a> for $b {
                     type Output = $py_class_name;
 
                     fn div(self, rhs: $a) -> Self::Output {
-                        $py_class_name(self.0 / rhs)
+                        $py_class_name{inner: self.inner / rhs}
                     }
                 }
             };
@@ -522,13 +527,17 @@ mod test_vec3 {
 
         #[test]
         fn test_deref() {
-            let actual = DVec3(glam::DVec3::splat(0.));
+            let actual = DVec3 {
+                inner: glam::DVec3::splat(0.),
+            };
             assert_eq!(actual.x, 0.);
         }
 
         #[test]
         fn test_into() {
-            let dvec3 = DVec3(glam::DVec3::splat(0.));
+            let dvec3 = DVec3 {
+                inner: glam::DVec3::splat(0.),
+            };
 
             let actual: glam::DVec3 = dvec3.into();
             assert_eq!(actual.x, 0.);
