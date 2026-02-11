@@ -7,7 +7,7 @@ use pyo3::{
 use pyo3_stub_gen::derive::*;
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 #[cfg(feature = "py_bevy")]
-use simple_py_bevy::prelude::*;
+use simple_py_bevy::*;
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
