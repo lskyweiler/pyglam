@@ -27,13 +27,26 @@ enum Vec3VecOpsEnum {
 }
 
 macro_rules! vec3_glam_wrapper {
-    ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
+    ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
         #[repr(transparent)]
         #[pyclass]
         #[gen_stub_pyclass]
-        #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
-        #[derive(Clone, Copy)]
+        #[cfg_attr(
+            feature = "py-ref",
+            derive(
+                simple_py_bevy::PyStructRef
+            )
+        )]
+        #[cfg_attr(
+            feature = "bevy",
+            derive(
+                bevy::prelude::Reflect,
+                serde::Deserialize,
+                serde::Serialize,
+            )
+        )]
+        #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name {
             #[cfg_attr(feature = "py-ref", py_bevy(skip))]
             pub(crate) inner: $glam_class_name
@@ -493,11 +506,27 @@ macro_rules! vec3_glam_wrapper {
         ops_with_glam!(&$var_type, $py_class_name);
         ops_with_glam!($var_type, &$py_class_name);
         ops_with_glam!(&$var_type, &$py_class_name);
+
+        macro_rules! quat_ops_with_glam {
+            ($a:ty, $b:ty) => {
+            impl Mul<$a> for $b {
+                    type Output = $glam_class_name;
+
+                    fn mul(self, rhs: $a) -> Self::Output {
+                        self * rhs.inner
+                    }
+                }
+            }
+        }
+        quat_ops_with_glam!($py_class_name, $glam_quat_class_name);
+        quat_ops_with_glam!(&$py_class_name, $glam_quat_class_name);
+        quat_ops_with_glam!($py_class_name, &$glam_quat_class_name);
+        quat_ops_with_glam!(&$py_class_name, &$glam_quat_class_name);
     }
 }
-vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
+vec3_glam_wrapper!(DVec3, glam::DVec3, glam::DQuat, f64);
 #[cfg(feature = "f32")]
-vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
+vec3_glam_wrapper!(Vec3, glam::Vec3, glam::Quat, f32);
 
 /// Creates a 3-dimensional f64 vector
 #[inline(always)]

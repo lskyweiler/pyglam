@@ -23,8 +23,21 @@ macro_rules! vec3_glam_wrapper {
         #[repr(transparent)]
         #[pyclass]
         #[gen_stub_pyclass]
-        #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
-        #[derive(Clone, Copy)]
+        #[cfg_attr(
+            feature = "py-ref",
+            derive(
+                simple_py_bevy::PyStructRef
+            )
+        )]
+        #[cfg_attr(
+            feature = "bevy",
+            derive(
+                bevy::prelude::Reflect,
+                serde::Deserialize,
+                serde::Serialize,
+            )
+        )]
+        #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name {
             // it would be better to have this as a single tuple struct, but need to update the macro to handle tuple structs
             #[cfg_attr(feature = "py-ref", py_bevy(skip))]
