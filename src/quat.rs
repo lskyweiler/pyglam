@@ -2,10 +2,7 @@ use crate::vec3;
 use either::Either;
 use glam;
 use pyo3::{exceptions::PyNotImplementedError, prelude::*};
-#[cfg(not(feature = "py_bevy"))]
 use pyo3_stub_gen::derive::*;
-#[cfg(feature = "py_bevy")]
-use simple_py_bevy::*;
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -24,14 +21,13 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
         #[repr(transparent)]
-        #[cfg_attr(not(feature = "py_bevy"), pyclass)]
-        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pyclass)]
-        // todo: need to decouple bevy from the reference implementation
-        #[cfg_attr(feature = "py_bevy", py_bevy_component)]
+        #[pyclass]
+        #[gen_stub_pyclass]
+        #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[derive(Clone, Copy)]
         pub struct $py_class_name {
             // it would be better to have this as a single tuple struct, but need to update the macro to handle tuple structs
-            #[cfg_attr(feature = "py_bevy", py_bevy(skip))]
+            #[cfg_attr(feature = "py-ref", py_bevy(skip))]
             inner: $glam_class_name,
         }
 
@@ -41,9 +37,9 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[cfg_attr(feature = "py_bevy", py_bevy_methods)]
-        #[cfg_attr(not(feature = "py_bevy"), pymethods)]
-        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pymethods)]
+        #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
+        #[pymethods]
+        #[gen_stub_pymethods]
         impl $py_class_name {
             /// Create a new quaternion from components.
             /// Usually you want `from_axis_angle` or `from_rotation_arc` instead of this

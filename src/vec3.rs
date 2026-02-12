@@ -3,10 +3,7 @@ use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
 };
-#[cfg(not(feature = "py_bevy"))]
 use pyo3_stub_gen::derive::*;
-#[cfg(feature = "py_bevy")]
-use simple_py_bevy::*;
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
@@ -33,12 +30,12 @@ macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
         #[repr(transparent)]
-        #[cfg_attr(not(feature = "py_bevy"), pyclass)]
-        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pyclass)]
-        #[cfg_attr(feature = "py_bevy", py_bevy_component)]
+        #[pyclass]
+        #[gen_stub_pyclass]
+        #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[derive(Clone, Copy)]
         pub struct $py_class_name {
-            #[cfg_attr(feature = "py_bevy", py_bevy(skip))]
+            #[cfg_attr(feature = "py-ref", py_bevy(skip))]
             pub(crate) inner: $glam_class_name
         }
 
@@ -48,9 +45,9 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[cfg_attr(feature = "py_bevy", simple_pymethods)]
-        #[cfg_attr(not(feature = "py_bevy"), pymethods)]
-        #[cfg_attr(not(feature = "py_bevy"), gen_stub_pymethods)]
+        #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
+        #[pymethods]
+        #[gen_stub_pymethods]
         impl $py_class_name {
             #[new]
             #[pyo3(signature = (x, y=None, z=None))]

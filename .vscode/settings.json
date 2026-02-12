@@ -5,6 +5,6 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "rust-analyzer.cargo.features": [
-        "py_bevy"
+        "py-ref"
     ]
 }
