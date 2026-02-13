@@ -27,19 +27,16 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(
             feature = "bevy",
             derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize),
-            serde(transparent)
+            serde(transparent), 
+            reflect(Clone)
         )]
         #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]
-        pub struct $py_class_name {
-            // it would be better to have this as a single tuple struct, but need to update the macro to handle tuple structs
-            #[cfg_attr(feature = "py-ref", py_bevy(skip))]
-            inner: $glam_class_name,
-        }
+        pub struct $py_class_name($glam_class_name);
 
         impl $py_class_name {
             pub fn new(quat: $glam_class_name) -> Self {
-                Self { inner: quat }
+                Self(quat)
             }
         }
 
@@ -64,7 +61,7 @@ macro_rules! vec3_glam_wrapper {
             #[new]
             pub fn py_new(x: $var_type, y: $var_type, z: $var_type, w: $var_type) -> Self {
                 let inner = <$glam_class_name>::from_xyzw(x, y, z, w);
-                $py_class_name { inner: inner }
+                $py_class_name(inner)
             }
 
             /// Create a new quaternion from an axis and angle
@@ -81,7 +78,7 @@ macro_rules! vec3_glam_wrapper {
             #[staticmethod]
             pub fn from_axis_angle(axis: &$py_vec_class_name, angle: $var_type) -> Self {
                 let inner = <$glam_class_name>::from_axis_angle(axis.into(), angle);
-                $py_class_name { inner: inner }
+                $py_class_name(inner)
             }
 
             /// Gets the minimal rotation for transforming `from` to `to`.  The rotation is in the
@@ -104,7 +101,7 @@ macro_rules! vec3_glam_wrapper {
             #[staticmethod]
             pub fn from_rotation_arc(from_: &$py_vec_class_name, to: &$py_vec_class_name) -> Self {
                 let inner = <$glam_class_name>::from_rotation_arc(from_.into(), to.into());
-                $py_class_name { inner: inner }
+                $py_class_name(inner)
             }
 
             /// Convert this quat to a 4 component tuple
@@ -135,7 +132,7 @@ macro_rules! vec3_glam_wrapper {
                 rhs: Bound<'_, PyAny>,
             ) -> PyResult<Either<$py_class_name, $py_vec_class_name>> {
                 // this * rhs
-                let this = self.inner;
+                let this = self.0;
                 match rhs.extract::<QuatOpsEnum>() {
                     Ok(QuatOpsEnum::DQuat(dquat)) => {
                         return Ok(Either::Left($py_class_name::new(
@@ -204,12 +201,12 @@ macro_rules! vec3_glam_wrapper {
 
             /// Normalize this quaternion into a unit quat
             fn normalize(&self) -> $py_class_name {
-                $py_class_name::new(self.inner.normalize())
+                $py_class_name::new(self.0.normalize())
             }
             /// Compute the conjugate of this quat.
             /// If this is a unit quat, the conjugate is equal to the inverse of the rotation
             fn conjugate(&self) -> $py_class_name {
-                $py_class_name::new(self.inner.conjugate())
+                $py_class_name::new(self.0.conjugate())
             }
         }
 
@@ -217,7 +214,7 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl Into<$a> for $b {
                     fn into(self) -> $a {
-                        self.inner
+                        self.0
                     }
                 }
             };
@@ -228,9 +225,7 @@ macro_rules! vec3_glam_wrapper {
             ($a:ty, $b:ty) => {
                 impl From<$a> for $b {
                     fn from(value: $a) -> Self {
-                        Self {
-                            inner: value.clone(),
-                        }
+                        Self(value.clone())
                     }
                 }
             };
@@ -242,12 +237,12 @@ macro_rules! vec3_glam_wrapper {
             type Target = $glam_class_name;
 
             fn deref(&self) -> &Self::Target {
-                &self.inner
+                &self.0
             }
         }
         impl DerefMut for $py_class_name {
             fn deref_mut(&mut self) -> &mut Self::Target {
-                &mut self.inner
+                &mut self.0
             }
         }
 
@@ -257,9 +252,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name {
-                            inner: self.inner * rhs.inner,
-                        }
+                        $py_class_name(self.0 * rhs.0)
                     }
                 }
             };
@@ -275,7 +268,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_vec_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        <$py_vec_class_name>::new(self.inner * rhs.inner)
+                        <$py_vec_class_name>::new(self.0 * rhs)
                     }
                 }
             };
@@ -291,18 +284,14 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        $py_class_name {
-                            inner: self.inner * rhs,
-                        }
+                        $py_class_name(self.0 * rhs)
                     }
                 }
                 impl Mul<$b> for $a {
                     type Output = $py_class_name;
 
                     fn mul(self, rhs: $b) -> Self::Output {
-                        $py_class_name {
-                            inner: self * rhs.inner,
-                        }
+                        $py_class_name(self * rhs.0)
                     }
                 }
             };
@@ -317,7 +306,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_vec_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        <$py_vec_class_name>::new(self.inner * rhs)
+                        <$py_vec_class_name>::new(self.0 * rhs)
                     }
                 }
             };
