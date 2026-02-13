@@ -26,7 +26,8 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "bevy",
-            derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize)
+            derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize),
+            serde(transparent)
         )]
         #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]

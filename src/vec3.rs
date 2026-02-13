@@ -43,8 +43,9 @@ macro_rules! vec3_glam_wrapper {
             derive(
                 bevy::reflect::Reflect,
                 serde::Deserialize,
-                serde::Serialize,
-            )
+                serde::Serialize
+            ),
+            serde(transparent)
         )]
         #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]
