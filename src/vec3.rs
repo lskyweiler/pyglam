@@ -1,13 +1,14 @@
 use glam;
+#[cfg(feature = "pyo3")]
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
 };
-use pyo3_stub_gen::derive::*;
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
+#[cfg(feature = "pyo3")]
 #[derive(FromPyObject)]
 enum Vec3ScaleOpsEnum {
     Float(f64),
@@ -19,6 +20,7 @@ enum Vec3ScaleOpsEnum {
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
 /// example: dot, cross
+#[cfg(feature = "pyo3")]
 #[derive(FromPyObject)]
 enum Vec3VecOpsEnum {
     DVec3(DVec3),
@@ -29,9 +31,7 @@ enum Vec3VecOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
-        #[repr(transparent)]
-        #[pyclass]
-        #[gen_stub_pyclass]
+        #[cfg_attr(feature = "pyo3", pyclass, pyo3_stub_gen::derive::gen_stub_pyclass)]
         #[cfg_attr(
             feature = "py-ref",
             derive(
@@ -41,11 +41,12 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(
             feature = "bevy",
             derive(
-                bevy::prelude::Reflect,
+                bevy::reflect::Reflect,
                 serde::Deserialize,
                 serde::Serialize,
             )
         )]
+        #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name {
             #[cfg_attr(feature = "py-ref", py_bevy(skip))]
@@ -58,9 +59,9 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
+        #[cfg(feature = "pyo3")]
         #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
-        #[pymethods]
-        #[gen_stub_pymethods]
+        #[cfg_attr(feature = "pyo3", pymethods, pyo3_stub_gen::derive::gen_stub_pymethods)]
         impl $py_class_name {
             #[new]
             #[pyo3(signature = (x, y=None, z=None))]
@@ -82,8 +83,8 @@ macro_rules! vec3_glam_wrapper {
                         rand::random(),
                         rand::random(),
                         rand::random(),
-                    )
-                ).normalize()
+                    ).normalize()
+                )
             }
 
             #[getter]
@@ -530,14 +531,14 @@ vec3_glam_wrapper!(Vec3, glam::Vec3, glam::Quat, f32);
 
 /// Creates a 3-dimensional f64 vector
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn dvec3(x: f64, y: f64, z: f64) -> DVec3 {
     DVec3::new(glam::dvec3(x, y, z))
 }
 #[cfg(feature = "f32")]
 /// Creates a 3-dimensional f32 vector
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
     Vec3::new(glam::vec3(x, y, z))
 }

@@ -1,13 +1,14 @@
 pub mod quat;
 pub mod vec3;
 
+#[cfg(feature = "pyo3")]
 use pyo3::prelude::*;
-use pyo3_stub_gen::define_stub_info_gatherer;
 
 pub use self::quat::*;
 pub use self::vec3::*;
 
 /// Simple linear algebra vector library
+#[cfg(feature = "pyo3")]
 #[pymodule]
 mod pyglam {
     #[pymodule_export]
@@ -34,4 +35,5 @@ mod pyglam {
     use crate::quat::quat;
 }
 
-define_stub_info_gatherer!(stub_info);
+#[cfg(feature = "pyo3")]
+pyo3_stub_gen::define_stub_info_gatherer!(stub_info);
