@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.1] - 2026-02-17
+## [0.1.2] - 2026-02-17
 
 ### 🚀 Features
 
@@ -27,12 +27,13 @@ All notable changes to this project will be documented in this file.
 
 - Cargo locked
 - Updated simple_py_bevy version
+- Prep for release v0.1.1
 
 ### ◀️ Revert
 
 - Made vec functions private to deconflict with glam deref
 
-## [0.1.1] - 2026-02-17
+## [0.1.1] - 2026-01-30
 
 ### 🚀 Features
 
