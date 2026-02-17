@@ -3,5 +3,9 @@
         "test"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "rust-analyzer.cargo.features": [
+        "py-ref"
+    ],
+    "rust-analyzer.cargo.noDefaultFeatures": true
 }

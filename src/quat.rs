@@ -1,12 +1,14 @@
 use crate::vec3;
+#[cfg(feature = "pyo3")]
 use either::Either;
 use glam;
+#[cfg(feature = "pyo3")]
 use pyo3::{exceptions::PyNotImplementedError, prelude::*};
-use pyo3_stub_gen::derive::*;
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
 /// example: dot, cross
+#[cfg(feature = "pyo3")]
 #[derive(FromPyObject)]
 enum QuatOpsEnum {
     DVec3(vec3::DVec3),
@@ -20,10 +22,16 @@ enum QuatOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
+        #[cfg_attr(
+            feature = "bevy",
+            derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize),
+            serde(transparent), 
+            reflect(Clone)
+        )]
         #[repr(transparent)]
-        #[gen_stub_pyclass]
-        #[pyclass]
-        #[derive(Clone, Copy)]
+        #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name($glam_class_name);
 
         impl $py_class_name {
@@ -32,8 +40,9 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[gen_stub_pymethods]
-        #[pymethods]
+        #[cfg(feature = "pyo3")]
+        #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pymethods, pymethods)]
         impl $py_class_name {
             /// Create a new quaternion from components.
             /// Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
@@ -259,7 +268,7 @@ macro_rules! vec3_glam_wrapper {
                     type Output = $py_vec_class_name;
 
                     fn mul(self, rhs: $a) -> Self::Output {
-                        <$py_vec_class_name>::new(self.0 * rhs.0)
+                        <$py_vec_class_name>::new(self.0 * rhs)
                     }
                 }
             };
@@ -314,14 +323,14 @@ vec3_glam_wrapper!(Quat, vec3::Vec3, glam::Quat, glam::Vec3, f32);
 
 /// Creates a 4-dimensional f64 quaternion
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn dquat(x: f64, y: f64, z: f64, w: f64) -> DQuat {
     DQuat::new(glam::dquat(x, y, z, w))
 }
 #[cfg(feature = "f32")]
 /// Creates a 4-dimensional f32 quaternion
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn quat(x: f32, y: f32, z: f32, w: f32) -> Quat {
     Quat::new(glam::quat(x, y, z, w))
 }

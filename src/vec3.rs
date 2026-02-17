@@ -1,13 +1,14 @@
 use glam;
+#[cfg(feature = "pyo3")]
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
 };
-use pyo3_stub_gen::derive::*;
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
 /// Supported types for arithmetic operations on vecs
 /// vec3 * Some
+#[cfg(feature = "pyo3")]
 #[derive(FromPyObject)]
 enum Vec3ScaleOpsEnum {
     Float(f64),
@@ -19,6 +20,7 @@ enum Vec3ScaleOpsEnum {
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
 /// example: dot, cross
+#[cfg(feature = "pyo3")]
 #[derive(FromPyObject)]
 enum Vec3VecOpsEnum {
     DVec3(DVec3),
@@ -27,13 +29,28 @@ enum Vec3VecOpsEnum {
 }
 
 macro_rules! vec3_glam_wrapper {
-    ($py_class_name: ident, $glam_class_name: ty, $var_type: ty) => {
+    ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(
+            feature = "py-ref",
+            derive(
+                simple_py_bevy::PyStructRef
+            )
+        )]
+        #[cfg_attr(
+            feature = "bevy",
+            derive(
+                bevy::reflect::Reflect,
+                serde::Deserialize,
+                serde::Serialize
+            ),
+            serde(transparent), 
+            reflect(Clone)
+        )]
         #[repr(transparent)]
-        #[gen_stub_pyclass]
-        #[pyclass]
-        #[derive(Clone, Copy)]
-        pub struct $py_class_name(pub(crate) $glam_class_name);
+        #[derive(Clone, Copy, Default, PartialEq)]
+        pub struct $py_class_name($glam_class_name);
 
         impl $py_class_name {
             pub fn new(vec: $glam_class_name) -> Self {
@@ -41,20 +58,32 @@ macro_rules! vec3_glam_wrapper {
             }
         }
 
-        #[gen_stub_pymethods]
-        #[pymethods]
+        #[cfg(feature = "pyo3")]
+        #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pymethods, pymethods)]
         impl $py_class_name {
             #[new]
             #[pyo3(signature = (x, y=None, z=None))]
             pub fn py_new(x: $var_type, y: Option<$var_type>, z: Option<$var_type>) -> PyResult<Self> {
                 if y.is_none() ^ z.is_none() {
                     return Err(PyValueError::new_err(
-                        "Either set all values dvec3(1.0, 1.0, 1.0) or only first value to set xyz to same value: dvec3(1.0)",
+                        "Either set all values DVec3(1.0, 1.0, 1.0) or only first value to set xyz to same value: DVec3(1.0)",
                     ));
                 }
 
                 let inner = <$glam_class_name>::new(x, y.unwrap_or(x), z.unwrap_or(x));
                 Ok($py_class_name(inner))
+            }
+            /// Generates a random unit vector, normalized to 1.
+            #[staticmethod]
+            pub fn rand_uv() ->  Self {
+                Self::new(
+                    <$glam_class_name>::new(
+                        rand::random(),
+                        rand::random(),
+                        rand::random(),
+                    ).normalize()
+                )
             }
 
             #[getter]
@@ -83,16 +112,16 @@ macro_rules! vec3_glam_wrapper {
             }
 
             /// Convert this vector to a 3 component tuple
-            /// 
+            ///
             /// # Returns
-            /// 
+            ///
             /// - `(float, float, float)` - XYZ tuple
-            /// 
+            ///
             fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
                 (self.x, self.y, self.z)
             }
 
-            fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this + rhs
                 let this = self.0;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
@@ -113,11 +142,11 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __radd__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __radd__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs + this
                 return self.__add__(lhs);
             }
-            fn __sub__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __sub__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this - rhs
                 let this = self.0;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
@@ -138,7 +167,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __rsub__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __rsub__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs - this
                 let this = self.0;
                 match lhs.extract::<Vec3ScaleOpsEnum>() {
@@ -159,7 +188,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __mul__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __mul__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this * rhs
                 let this = self.0;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
@@ -180,11 +209,11 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __rmul__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __rmul__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs * this
                 return self.__mul__(lhs);
             }
-            fn __truediv__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __truediv__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // this / rhs
                 let this = self.0;
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
@@ -205,7 +234,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __rtruediv__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
+            pub fn __rtruediv__(&mut self, lhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {
                 // lhs / this
                 let this = self.0;
                 match lhs.extract::<Vec3ScaleOpsEnum>() {
@@ -227,7 +256,7 @@ macro_rules! vec3_glam_wrapper {
                 }
             }
 
-            fn __iadd__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
+            pub fn __iadd__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
                 // this += rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
@@ -251,7 +280,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __isub__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
+            pub fn __isub__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
                 // this -= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
@@ -275,7 +304,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __imul__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
+            pub fn __imul__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
                 // this *= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
@@ -299,7 +328,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __itruediv__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
+            pub fn __itruediv__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<()> {
                 // this *= rhs
                 match rhs.extract::<Vec3ScaleOpsEnum>() {
                     Ok(Vec3ScaleOpsEnum::Float(scalar)) => {
@@ -323,7 +352,7 @@ macro_rules! vec3_glam_wrapper {
                     }
                 }
             }
-            fn __neg__(&mut self) -> $py_class_name {
+            pub fn __neg__(&mut self) -> $py_class_name {
                 // -this
                 return $py_class_name::new(-self.0);
             }
@@ -477,22 +506,38 @@ macro_rules! vec3_glam_wrapper {
         ops_with_glam!(&$var_type, $py_class_name);
         ops_with_glam!($var_type, &$py_class_name);
         ops_with_glam!(&$var_type, &$py_class_name);
+
+        macro_rules! quat_ops_with_glam {
+            ($a:ty, $b:ty) => {
+            impl Mul<$a> for $b {
+                    type Output = $glam_class_name;
+
+                    fn mul(self, rhs: $a) -> Self::Output {
+                        self * rhs.0
+                    }
+                }
+            }
+        }
+        quat_ops_with_glam!($py_class_name, $glam_quat_class_name);
+        quat_ops_with_glam!(&$py_class_name, $glam_quat_class_name);
+        quat_ops_with_glam!($py_class_name, &$glam_quat_class_name);
+        quat_ops_with_glam!(&$py_class_name, &$glam_quat_class_name);
     }
 }
-vec3_glam_wrapper!(DVec3, glam::DVec3, f64);
+vec3_glam_wrapper!(DVec3, glam::DVec3, glam::DQuat, f64);
 #[cfg(feature = "f32")]
-vec3_glam_wrapper!(Vec3, glam::Vec3, f32);
+vec3_glam_wrapper!(Vec3, glam::Vec3, glam::Quat, f32);
 
 /// Creates a 3-dimensional f64 vector
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn dvec3(x: f64, y: f64, z: f64) -> DVec3 {
     DVec3::new(glam::dvec3(x, y, z))
 }
 #[cfg(feature = "f32")]
 /// Creates a 3-dimensional f32 vector
 #[inline(always)]
-#[pyfunction]
+#[cfg_attr(feature = "pyo3", pyfunction)]
 pub fn vec3(x: f32, y: f32, z: f32) -> Vec3 {
     Vec3::new(glam::vec3(x, y, z))
 }

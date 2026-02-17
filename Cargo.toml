@@ -13,13 +13,25 @@ either = "~1.15"
 pyo3 = { version = "~0.27", default-features = false, features = [
     "either",
     "extension-module",
-] }
+], optional = true }
 glam = "~0.30"
 # bin/stub_gen deps
 env_logger = "~0.11"
 pyo3-stub-gen = { version = "~0.18", default-features = false, features = [
     "either",
-] }
+], optional = true }
+rand = "~0.9"
+
+simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true, version = "0.1.0" }
+
+# we only need bevy_reflect, but glam refelct definitions seem to be in bevy proper, so include it all
+bevy = { version = "~0.17", optional = true }
+serde = { version = "~1.0", features = ["derive"], optional = true }
 
 [features]
+# build both f32 vecs/quats and f64
 f32 = []
+default = ["pyo3"]
+pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
+bevy = ["dep:bevy", "dep:serde", "glam/serde"]
+py-ref = ["dep:simple-py-bevy", "dep:pyo3", "simple-py-bevy/py-ref", "bevy"]
