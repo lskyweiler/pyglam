@@ -138,6 +138,11 @@ class DVec3:
         y: typing.Optional[builtins.float] = None,
         z: typing.Optional[builtins.float] = None,
     ) -> DVec3: ...
+    @staticmethod
+    def rand_uv() -> DVec3:
+        r"""
+        Generates a random unit vector, normalized to 1.
+        """
     def to_tuple(self) -> tuple[builtins.float, builtins.float, builtins.float]:
         r"""
         Convert this vector to a 3 component tuple

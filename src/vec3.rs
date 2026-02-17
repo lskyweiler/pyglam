@@ -31,7 +31,7 @@ enum Vec3VecOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
-        #[cfg_attr(feature = "pyo3", pyclass, pyo3_stub_gen::derive::gen_stub_pyclass)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
         #[cfg_attr(
             feature = "py-ref",
             derive(
@@ -60,14 +60,14 @@ macro_rules! vec3_glam_wrapper {
 
         #[cfg(feature = "pyo3")]
         #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
-        #[cfg_attr(feature = "pyo3", pymethods, pyo3_stub_gen::derive::gen_stub_pymethods)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pymethods, pymethods)]
         impl $py_class_name {
             #[new]
             #[pyo3(signature = (x, y=None, z=None))]
             pub fn py_new(x: $var_type, y: Option<$var_type>, z: Option<$var_type>) -> PyResult<Self> {
                 if y.is_none() ^ z.is_none() {
                     return Err(PyValueError::new_err(
-                        "Either set all values dvec3(1.0, 1.0, 1.0) or only first value to set xyz to same value: dvec3(1.0)",
+                        "Either set all values DVec3(1.0, 1.0, 1.0) or only first value to set xyz to same value: DVec3(1.0)",
                     ));
                 }
 

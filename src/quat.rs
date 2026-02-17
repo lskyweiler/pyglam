@@ -22,7 +22,7 @@ enum QuatOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
-        #[cfg_attr(feature = "pyo3", pyclass, pyo3_stub_gen::derive::gen_stub_pyclass)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "bevy",
@@ -42,7 +42,7 @@ macro_rules! vec3_glam_wrapper {
 
         #[cfg(feature = "pyo3")]
         #[cfg_attr(feature = "py-ref", simple_py_bevy::py_ref_methods)]
-        #[cfg_attr(feature = "pyo3", pymethods, pyo3_stub_gen::derive::gen_stub_pymethods)]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pymethods, pymethods)]
         impl $py_class_name {
             /// Create a new quaternion from components.
             /// Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
