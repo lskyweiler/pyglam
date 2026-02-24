@@ -17,6 +17,10 @@ enum QuatOpsEnum {
     DQuat(DQuat),
     #[cfg(feature = "f32")]
     Quat(Quat),
+    #[cfg(feature = "py-ref")]
+    DVec3Ref(vec3::DVec3Ref),
+    #[cfg(feature = "py-ref")]
+    DQuatRef(DQuatRef),
 }
 
 macro_rules! vec3_glam_wrapper {
@@ -171,6 +175,29 @@ macro_rules! vec3_glam_wrapper {
                                 vec.x as $var_type,
                                 vec.y as $var_type,
                                 vec.z as $var_type,
+                            ),
+                        )));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(QuatOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok(Either::Right(<$py_vec_class_name>::new(
+                            this * <$glam_vec_class_name>::new(
+                                vec.x as $var_type,
+                                vec.y as $var_type,
+                                vec.z as $var_type,
+                            ),
+                        )));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(QuatOpsEnum::DQuatRef(quat_ref)) => {
+                        let dquat = quat_ref.get_inner_ref()?;
+                        return Ok(Either::Left($py_class_name::new(
+                            this * <$glam_class_name>::from_xyzw(
+                                dquat.x as $var_type,
+                                dquat.y as $var_type,
+                                dquat.z as $var_type,
+                                dquat.w as $var_type,
                             ),
                         )));
                     }

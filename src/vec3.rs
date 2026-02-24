@@ -15,7 +15,8 @@ enum Vec3ScaleOpsEnum {
     Int(i64),
     DVec3(DVec3),
     Vec3(DVec3),
-    // IVec3(DVec3),
+    #[cfg(feature = "py-ref")]
+    DVec3Ref(DVec3Ref),
 }
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -26,6 +27,8 @@ enum Vec3VecOpsEnum {
     DVec3(DVec3),
     #[cfg(feature = "f32")]
     Vec3(Vec3),
+    #[cfg(feature = "py-ref")]
+    DVec3Ref(DVec3Ref),
 }
 
 macro_rules! vec3_glam_wrapper {
@@ -45,7 +48,7 @@ macro_rules! vec3_glam_wrapper {
                 serde::Deserialize,
                 serde::Serialize
             ),
-            serde(transparent), 
+            serde(transparent),
             reflect(Clone)
         )]
         #[repr(transparent)]
@@ -137,6 +140,11 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
                         return Ok($py_class_name::new(this + <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok($py_class_name::new(this + <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -162,6 +170,11 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
                         return Ok($py_class_name::new(this - <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok($py_class_name::new(this - <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -183,6 +196,11 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
                         return Ok($py_class_name::new(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type) - this));
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok($py_class_name::new(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type) - this));
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -202,6 +220,11 @@ macro_rules! vec3_glam_wrapper {
                         return Ok($py_class_name::new(this * <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
+                        return Ok($py_class_name::new(this * <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
                         return Ok($py_class_name::new(this * <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
                     Err(e) => {
@@ -229,6 +252,11 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
                         return Ok($py_class_name::new(this / <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok($py_class_name::new(this / <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -248,6 +276,11 @@ macro_rules! vec3_glam_wrapper {
                         return Ok($py_class_name::new(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type) / this));
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
+                        return Ok($py_class_name::new(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type) / this));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
                         return Ok($py_class_name::new(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type) / this));
                     }
                     Err(e) => {
@@ -275,6 +308,12 @@ macro_rules! vec3_glam_wrapper {
                         self.0 += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        self.0 += <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        return Ok(());
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -296,6 +335,12 @@ macro_rules! vec3_glam_wrapper {
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
+                        self.0 -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        return Ok(());
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
                         self.0 -= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
@@ -323,6 +368,12 @@ macro_rules! vec3_glam_wrapper {
                         self.0 *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        self.0 *= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        return Ok(());
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -344,6 +395,12 @@ macro_rules! vec3_glam_wrapper {
                         return Ok(());
                     }
                     Ok(Vec3ScaleOpsEnum::Vec3(vec)) => {
+                        self.0 /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
+                        return Ok(());
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3ScaleOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
                         self.0 /= <$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type);
                         return Ok(());
                     }
@@ -372,6 +429,11 @@ macro_rules! vec3_glam_wrapper {
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
                         return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
                     }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3VecOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok(self.0.dot(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type)));
+                    }
                     Err(e) => {
                         return Err(PyNotImplementedError::new_err(e));
                     }
@@ -384,6 +446,11 @@ macro_rules! vec3_glam_wrapper {
                     }
                     #[cfg(feature = "f32")]
                     Ok(Vec3VecOpsEnum::Vec3(vec)) => {
+                        return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(Vec3VecOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
                         return Ok($py_class_name::new(self.0.cross(<$glam_class_name>::new(vec.x as $var_type, vec.y as $var_type, vec.z as $var_type))));
                     }
                     Err(e) => {
