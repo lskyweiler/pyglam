@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-02-24
+
+### 🚀 Features
+
+- Added support for operations with vec reference objects
+- Separated serde from bevy feat
+
 ## [0.1.2] - 2026-02-17
 
 ### 🚀 Features
@@ -28,6 +35,7 @@ All notable changes to this project will be documented in this file.
 - Cargo locked
 - Updated simple_py_bevy version
 - Prep for release v0.1.1
+- Prep for release v0.1.2
 
 ### ◀️ Revert
 

@@ -1,6 +1,6 @@
 [package]
 name = "pyglam"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -22,7 +22,7 @@ pyo3-stub-gen = { version = "~0.18", default-features = false, features = [
 ], optional = true }
 rand = "~0.9"
 
-simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true, version = "0.1.0" }
+simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true, version = "0.2.0" }
 
 # we only need bevy_reflect, but glam refelct definitions seem to be in bevy proper, so include it all
 bevy = { version = "~0.17", optional = true }
