@@ -33,5 +33,6 @@ serde = { version = "~1.0", features = ["derive"], optional = true }
 f32 = []
 default = ["pyo3"]
 pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
-bevy = ["dep:bevy", "dep:serde", "glam/serde"]
+serde = ["dep:serde", "glam/serde"]
+bevy = ["dep:bevy", "serde"]
 py-ref = ["dep:simple-py-bevy", "dep:pyo3", "simple-py-bevy/py-ref", "bevy"]

@@ -29,11 +29,11 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
-            feature = "bevy",
-            derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize),
-            serde(transparent), 
-            reflect(Clone)
+            feature = "serde",
+            derive(serde::Deserialize, serde::Serialize),
+            serde(transparent)
         )]
+        #[cfg_attr(feature = "bevy", derive(bevy::reflect::Reflect), reflect(Clone))]
         #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name($glam_class_name);
