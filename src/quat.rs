@@ -17,6 +17,10 @@ enum QuatOpsEnum {
     DQuat(DQuat),
     #[cfg(feature = "f32")]
     Quat(Quat),
+    #[cfg(feature = "py-ref")]
+    DVec3Ref(vec3::DVec3Ref),
+    #[cfg(feature = "py-ref")]
+    DQuatRef(DQuatRef),
 }
 
 macro_rules! vec3_glam_wrapper {
@@ -25,11 +29,11 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
-            feature = "bevy",
-            derive(bevy::reflect::Reflect, serde::Deserialize, serde::Serialize),
-            serde(transparent), 
-            reflect(Clone)
+            feature = "serde",
+            derive(serde::Deserialize, serde::Serialize),
+            serde(transparent)
         )]
+        #[cfg_attr(feature = "bevy", derive(bevy::reflect::Reflect), reflect(Clone))]
         #[repr(transparent)]
         #[derive(Clone, Copy, Default, PartialEq)]
         pub struct $py_class_name($glam_class_name);
@@ -171,6 +175,29 @@ macro_rules! vec3_glam_wrapper {
                                 vec.x as $var_type,
                                 vec.y as $var_type,
                                 vec.z as $var_type,
+                            ),
+                        )));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(QuatOpsEnum::DVec3Ref(vec_ref)) => {
+                        let vec = vec_ref.get_inner_ref()?;
+                        return Ok(Either::Right(<$py_vec_class_name>::new(
+                            this * <$glam_vec_class_name>::new(
+                                vec.x as $var_type,
+                                vec.y as $var_type,
+                                vec.z as $var_type,
+                            ),
+                        )));
+                    }
+                    #[cfg(feature = "py-ref")]
+                    Ok(QuatOpsEnum::DQuatRef(quat_ref)) => {
+                        let dquat = quat_ref.get_inner_ref()?;
+                        return Ok(Either::Left($py_class_name::new(
+                            this * <$glam_class_name>::from_xyzw(
+                                dquat.x as $var_type,
+                                dquat.y as $var_type,
+                                dquat.z as $var_type,
+                                dquat.w as $var_type,
                             ),
                         )));
                     }

@@ -5,7 +5,8 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "rust-analyzer.cargo.features": [
-        "py-ref"
+        "py-ref",
+        "pyo3"
     ],
     "rust-analyzer.cargo.noDefaultFeatures": true
 }
