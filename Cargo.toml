@@ -17,7 +17,7 @@ pyo3 = { version = "~0.27", default-features = false, features = [
 glam = "~0.30"
 # bin/stub_gen deps
 env_logger = "~0.11"
-pyo3-stub-gen = { version = "~0.18", default-features = false, features = [
+pyo3-stub-gen = { version = "~0.19", default-features = false, features = [
     "either",
 ], optional = true }
 rand = "~0.9"
