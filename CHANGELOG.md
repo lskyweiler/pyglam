@@ -2,12 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-03-04
+
+### ⚙️ Miscellaneous Tasks
+
+- Bumped pyo3 stub gen to 19
+
 ## [0.2.0] - 2026-02-24
 
 ### 🚀 Features
 
 - Added support for operations with vec reference objects
 - Separated serde from bevy feat
+
+### ⚙️ Miscellaneous Tasks
+
+- Prep for release v0.2.0
 
 ## [0.1.2] - 2026-02-17
 
