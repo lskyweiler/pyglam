@@ -68,6 +68,39 @@ macro_rules! vec3_glam_wrapper {
                 $py_class_name(inner)
             }
 
+            #[getter]
+            fn get_x(&self) -> $var_type {
+                return self.0.x;
+            }
+            #[getter]
+            fn get_y(&self) -> $var_type {
+                return self.0.y;
+            }
+            #[getter]
+            fn get_z(&self) -> $var_type {
+                return self.0.z;
+            }
+            #[getter]
+            fn get_w(&self) -> $var_type {
+                return self.0.w;
+            }
+            #[setter]
+            fn set_x(&mut self, x: $var_type) {
+                self.0.x = x;
+            }
+            #[setter]
+            fn set_y(&mut self, y: $var_type) {
+                self.0.y = y;
+            }
+            #[setter]
+            fn set_z(&mut self, z: $var_type) {
+                self.0.z = z;
+            }
+            #[setter]
+            fn set_w(&mut self, w: $var_type) {
+                self.0.w = w;
+            }
+
             /// Create a new quaternion from an axis and angle
             ///
             /// # Arguments
