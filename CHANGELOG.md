@@ -2,11 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-04-02
+
+### 🚀 Features
+
+- Added getter/setters for quat
+- Updated stubs
+
 ## [0.2.1] - 2026-03-04
 
 ### ⚙️ Miscellaneous Tasks
 
 - Bumped pyo3 stub gen to 19
+- Prep for release v0.2.1
 
 ## [0.2.0] - 2026-02-24
 
