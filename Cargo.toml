@@ -25,7 +25,7 @@ rand = "~0.9"
 simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true }
 
 # we only need bevy_reflect, but glam refelct definitions seem to be in bevy proper, so include it all
-bevy = { version = "~0.17", optional = true }
+bevy = { version = "~0.18", optional = true }
 serde = { version = "~1.0", features = ["derive"], optional = true }
 
 [features]
