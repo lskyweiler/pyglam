@@ -1,10 +1,9 @@
 use glam;
-#[cfg(feature = "unpack")]
-use pyo3::types::{PyList, PyListMethods};
 #[cfg(feature = "pyo3")]
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
+    types::PyList,
 };
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
@@ -36,7 +35,11 @@ enum Vec3VecOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
-        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(
+            feature = "pyo3",
+            pyo3_stub_gen::derive::gen_stub_pyclass,
+            pyclass(module = "pyglam")
+        )]
         #[cfg_attr(
             feature = "py-ref",
             derive(

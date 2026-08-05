@@ -3,9 +3,7 @@ use crate::vec3;
 use either::Either;
 use glam;
 #[cfg(feature = "pyo3")]
-use pyo3::{exceptions::PyNotImplementedError, prelude::*};
-#[cfg(feature = "unpack")]
-use pyo3::types::PyList;
+use pyo3::{exceptions::PyNotImplementedError, prelude::*, types::PyList};
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -28,7 +26,11 @@ enum QuatOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
-        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(
+            feature = "pyo3",
+            pyo3_stub_gen::derive::gen_stub_pyclass,
+            pyclass(module = "pyglam")
+        )]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "serde",
