@@ -6,7 +6,8 @@
     "python.testing.pytestEnabled": true,
     "rust-analyzer.cargo.features": [
         "py-ref",
-        "pyo3"
+        "pyo3",
+        "unpack"
     ],
     "rust-analyzer.cargo.noDefaultFeatures": true
 }

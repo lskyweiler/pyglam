@@ -1,4 +1,6 @@
 use glam;
+#[cfg(feature = "unpack")]
+use pyo3::types::{PyList, PyListMethods};
 #[cfg(feature = "pyo3")]
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
@@ -88,6 +90,23 @@ macro_rules! vec3_glam_wrapper {
                         rand::random(),
                     ).normalize()
                 )
+            }
+
+            #[cfg(feature = "unpack")]
+            fn __unpack_dump__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+                let out = PyList::empty(py);
+                out.append(self.0.x)?;
+                out.append(self.0.y)?;
+                out.append(self.0.z)?;
+                return Ok(out);
+            }
+            #[cfg(feature = "unpack")]
+            #[staticmethod]
+            fn __unpack_load__<'py>(value: Bound<'py, PyList>) -> PyResult<Self> {
+                let x: $var_type = value.get_item(0)?.extract()?;
+                let y: $var_type = value.get_item(1)?.extract()?;
+                let z: $var_type = value.get_item(2)?.extract()?;
+                Self::py_new(x, Some(y), Some(z))
             }
 
             #[getter]

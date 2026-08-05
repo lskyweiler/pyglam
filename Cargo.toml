@@ -1,6 +1,6 @@
 [package]
 name = "pyglam"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -34,5 +34,7 @@ f32 = []
 default = ["pyo3"]
 pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
 serde = ["dep:serde", "glam/serde"]
-bevy = ["dep:bevy", "serde"]
+bevy = ["dep:bevy", "serde", "unpack"]
 py-ref = ["dep:simple-py-bevy", "dep:pyo3", "simple-py-bevy/py-ref", "bevy"]
+# adds [unpack](https://github.com/lskyweiler/unpack) loading and dumping functions
+unpack = []
