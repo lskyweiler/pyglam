@@ -29,8 +29,12 @@ macro_rules! vec3_glam_wrapper {
         #[cfg_attr(
             feature = "pyo3",
             pyo3_stub_gen::derive::gen_stub_pyclass,
+        )]
+        #[cfg_attr(
+            all(feature = "pyo3", feature = "set-pyclass-module"),
             pyclass(module = "pyglam")
         )]
+        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "serde",

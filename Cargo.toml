@@ -31,10 +31,12 @@ serde = { version = "~1.0", features = ["derive"], optional = true }
 [features]
 # build both f32 vecs/quats and f64
 f32 = []
-default = ["pyo3"]
+default = ["pyo3", "set-pyclass-module"]
 pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
 serde = ["dep:serde", "glam/serde"]
 bevy = ["dep:bevy", "serde", "unpack"]
+# dont set the pyclass(module=...) path. This is useful if you intend to build this library into another pyo3 project
+set-pyclass-module = []
 py-ref = ["dep:simple-py-bevy", "dep:pyo3", "simple-py-bevy/py-ref", "bevy"]
 # adds [unpack](https://github.com/lskyweiler/unpack) loading and dumping functions
 unpack = []
