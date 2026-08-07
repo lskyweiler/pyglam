@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 
 ### ⚙️ Miscellaneous Tasks
 
-- *(release)* Prep for release v0.4.0
+- *(release)* Prep for release v0.3.0
 
 ## [0.2.3] - 2026-04-10
 
