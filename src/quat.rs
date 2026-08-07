@@ -3,7 +3,7 @@ use crate::vec3;
 use either::Either;
 use glam;
 #[cfg(feature = "pyo3")]
-use pyo3::{exceptions::PyNotImplementedError, prelude::*};
+use pyo3::{exceptions::PyNotImplementedError, prelude::*, types::PyList};
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -26,7 +26,15 @@ enum QuatOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
-        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(
+            feature = "pyo3",
+            pyo3_stub_gen::derive::gen_stub_pyclass,
+        )]
+        #[cfg_attr(
+            all(feature = "pyo3", feature = "set-pyclass-module"),
+            pyclass(module = "pyglam")
+        )]
+        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "serde",
@@ -66,6 +74,26 @@ macro_rules! vec3_glam_wrapper {
             pub fn py_new(x: $var_type, y: $var_type, z: $var_type, w: $var_type) -> Self {
                 let inner = <$glam_class_name>::from_xyzw(x, y, z, w);
                 $py_class_name(inner)
+            }
+
+            /// Serializes as [x, y, z, w]
+            #[cfg(feature = "unpack")]
+            fn __unpack_dump__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+                let out = PyList::empty(py);
+                out.append(self.0.x)?;
+                out.append(self.0.y)?;
+                out.append(self.0.z)?;
+                out.append(self.0.w)?;
+                return Ok(out);
+            }
+            #[cfg(feature = "unpack")]
+            #[staticmethod]
+            fn __unpack_load__<'py>(value: Bound<'py, PyList>) -> PyResult<Self> {
+                let x: $var_type = value.get_item(0)?.extract()?;
+                let y: $var_type = value.get_item(1)?.extract()?;
+                let z: $var_type = value.get_item(2)?.extract()?;
+                let w: $var_type = value.get_item(3)?.extract()?;
+                Ok(Self::py_new(x, y, z, w))
             }
 
             #[getter]

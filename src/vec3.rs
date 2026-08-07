@@ -3,6 +3,7 @@ use glam;
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
+    types::PyList,
 };
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
@@ -34,7 +35,15 @@ enum Vec3VecOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $glam_class_name: ty, $glam_quat_class_name: ty, $var_type: ty) => {
         /// 3 Component vector xyz
-        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass, pyclass)]
+        #[cfg_attr(
+            feature = "pyo3",
+            pyo3_stub_gen::derive::gen_stub_pyclass,
+        )]
+        #[cfg_attr(
+            all(feature = "pyo3", feature = "set-pyclass-module"),
+            pyclass(module = "pyglam")
+        )]
+        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
         #[cfg_attr(
             feature = "py-ref",
             derive(
@@ -88,6 +97,23 @@ macro_rules! vec3_glam_wrapper {
                         rand::random(),
                     ).normalize()
                 )
+            }
+
+            #[cfg(feature = "unpack")]
+            fn __unpack_dump__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyList>> {
+                let out = PyList::empty(py);
+                out.append(self.0.x)?;
+                out.append(self.0.y)?;
+                out.append(self.0.z)?;
+                return Ok(out);
+            }
+            #[cfg(feature = "unpack")]
+            #[staticmethod]
+            fn __unpack_load__<'py>(value: Bound<'py, PyList>) -> PyResult<Self> {
+                let x: $var_type = value.get_item(0)?.extract()?;
+                let y: $var_type = value.get_item(1)?.extract()?;
+                let z: $var_type = value.get_item(2)?.extract()?;
+                Self::py_new(x, Some(y), Some(z))
             }
 
             #[getter]

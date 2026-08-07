@@ -2,12 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-08-07
+
+### 🚀 Features
+
+- Added unpack methods to objects
+- Added feature to turn off compiling pyclass(module) path
+
+### 🐛 Bug Fixes
+
+- Added pyclass module to vec and quat
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Prep for release v0.3.0
+
+## [0.2.3] - 2026-04-10
+
+### ⚙️ Miscellaneous Tasks
+
+- Bumped bevy version to 18
+
 ## [0.2.2] - 2026-04-02
 
 ### 🚀 Features
 
 - Added getter/setters for quat
 - Updated stubs
+
+### ⚙️ Miscellaneous Tasks
+
+- Prep for release v0.2.2
 
 ## [0.2.1] - 2026-03-04
 
