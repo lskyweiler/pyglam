@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+tasks:
+  gen-stubs:
+    desc: Generate py-stubs
+    cmds:
+      - cargo run --no-default-features --features=pyo3 stub_gen
