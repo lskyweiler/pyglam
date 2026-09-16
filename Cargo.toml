@@ -9,15 +9,15 @@ name = "pyglam"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-either = "~1.15"
-pyo3 = { version = "~0.27", default-features = false, features = [
+either = "1.15"
+pyo3 = { version = "0.27", default-features = false, features = [
     "either",
     "extension-module",
 ], optional = true }
-glam = "~0.32.0"
+glam = "0.32"
 # bin/stub_gen deps
 env_logger = "0.11"
-pyo3-stub-gen = { version = "~0.19", default-features = false, features = [
+pyo3-stub-gen = { version = "0.19", default-features = false, features = [
     "either",
 ], optional = true }
 rand = "0.10"
@@ -26,7 +26,7 @@ simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optio
 
 # we only need bevy_reflect, but glam refelct definitions seem to be in bevy proper, so include it all
 bevy = { version = "0.19", optional = true }
-serde = { version = "~1.0.0", features = ["derive"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [features]
 # build both f32 vecs/quats and f64
