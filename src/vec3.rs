@@ -41,9 +41,12 @@ macro_rules! vec3_glam_wrapper {
         )]
         #[cfg_attr(
             all(feature = "pyo3", feature = "set-pyclass-module"),
-            pyclass(module = "pyglam")
+            pyclass(module = "pyglam", from_py_object)
         )]
-        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
+        #[cfg_attr(
+            all(feature = "pyo3", not(feature = "set-pyclass-module")), 
+            pyclass(from_py_object))
+        ]
         #[cfg_attr(
             feature = "py-ref",
             derive(
