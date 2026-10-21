@@ -99,6 +99,28 @@ macro_rules! vec3_glam_wrapper {
                 Ok(Self::py_new(x, y, z, w))
             }
 
+            /// Construct an identity quaternion
+            #[staticmethod]
+            fn identity<'py>() -> PyResult<Self> {
+                Ok(Self::py_new(0., 0., 0., 1.))
+            }
+
+            /// numpy array protocol, lets `np.array([DQuat, ...])` produce an (N, 4) array [[X, Y, Z, W]]
+            #[cfg(feature = "numpy")]
+            #[pyo3(signature = (dtype=None))]
+            fn __array__<'py>(
+                &self,
+                py: Python<'py>,
+                dtype: Option<Bound<'py, PyAny>>
+            ) -> PyResult<Bound<'py, PyAny>> {
+                let np = py.import("numpy")?;
+                let data = PyList::new(py, [self.0.x, self.0.y, self.0.z, self.0.w])?;
+                match dtype {
+                    Some(dt) => np.call_method1("asarray", (data, dt)),
+                    None => np.call_method1("asarray", (data,)),
+                }
+            }
+
             #[getter]
             fn get_x(&self) -> $var_type {
                 return self.0.x;
