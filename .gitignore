@@ -70,4 +70,3 @@ docs/_build/
 .ruff_cache/
 
 .benchmarks/
-.cargo/

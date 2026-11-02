@@ -3,7 +3,12 @@
 version: '3'
 
 tasks:
+  default:
+    desc: build the dev version of the package
+    cmds:
+      - uv run maturin dev -r
+
   gen-stubs:
     desc: Generate py-stubs
     cmds:
-      - cargo run --no-default-features --features=pyo3 stub_gen
+      - cargo run --no-default-features --features=pyo3,numpy stub_gen
