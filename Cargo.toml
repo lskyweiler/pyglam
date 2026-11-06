@@ -1,6 +1,6 @@
 [package]
 name = "pyglam"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,32 +9,33 @@ name = "pyglam"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-either = "~1.15"
-pyo3 = { version = "~0.27", default-features = false, features = [
+either = "1.18"
+pyo3 = { version = "0.30", default-features = false, features = [
     "either",
     "extension-module",
 ], optional = true }
-glam = "~0.30"
+glam = "0.30"
 # bin/stub_gen deps
-env_logger = "~0.11"
-pyo3-stub-gen = { version = "~0.19", default-features = false, features = [
+env_logger = "0.11"
+pyo3-stub-gen = { version = "0.23", default-features = false, features = [
     "either",
 ], optional = true }
-rand = "~0.9"
+rand = "0.10"
 
 simple-py-bevy = { "git" = "https://github.com/lskyweiler/simple-py-bevy", optional = true }
 
 # we only need bevy_reflect, but glam refelct definitions seem to be in bevy proper, so include it all
-bevy = { version = "~0.18", optional = true }
-serde = { version = "~1.0", features = ["derive"], optional = true }
+bevy = { version = "0.18", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [features]
 # build both f32 vecs/quats and f64
 f32 = []
-default = ["pyo3", "set-pyclass-module"]
+default = ["pyo3", "set-pyclass-module", "numpy"]
 pyo3 = ["dep:pyo3", "dep:pyo3-stub-gen"]
 serde = ["dep:serde", "glam/serde"]
 bevy = ["dep:bevy", "serde", "unpack"]
+numpy = []
 # dont set the pyclass(module=...) path. This is useful if you intend to build this library into another pyo3 project
 set-pyclass-module = []
 py-ref = ["dep:simple-py-bevy", "dep:pyo3", "simple-py-bevy/py-ref", "bevy"]

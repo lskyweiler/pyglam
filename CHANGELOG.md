@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-11-06
+
+### 🚀 Features
+
+- Added mechanism to allow list[vec] to be consumed as a np array
+
+### ⚙️ Miscellaneous Tasks
+
+- Bumped non pyo3 versions
+- Bumped pyo3
+- Updated stubs
+- Bumped pyo3 version to latest to allow py3.15
+
 ## [0.3.0] - 2026-08-07
 
 ### 🚀 Features

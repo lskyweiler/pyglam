@@ -3,7 +3,7 @@ use glam;
 use pyo3::{
     exceptions::{PyNotImplementedError, PyValueError},
     prelude::*,
-    types::PyList,
+    types::*,
 };
 use std::ops::{Add, Deref, DerefMut, Div, Mul, Sub};
 
@@ -41,9 +41,12 @@ macro_rules! vec3_glam_wrapper {
         )]
         #[cfg_attr(
             all(feature = "pyo3", feature = "set-pyclass-module"),
-            pyclass(module = "pyglam")
+            pyclass(module = "pyglam", from_py_object)
         )]
-        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
+        #[cfg_attr(
+            all(feature = "pyo3", not(feature = "set-pyclass-module")), 
+            pyclass(from_py_object))
+        ]
         #[cfg_attr(
             feature = "py-ref",
             derive(
@@ -149,6 +152,22 @@ macro_rules! vec3_glam_wrapper {
             ///
             fn to_tuple(&self) -> ($var_type, $var_type, $var_type) {
                 (self.x, self.y, self.z)
+            }
+
+            /// numpy array protocol, lets `np.array([DVec3, ...])` produce an (N, 3) array [[X, Y, Z]]
+            #[cfg(feature = "numpy")]
+            #[pyo3(signature = (dtype=None))]
+            fn __array__<'py>(
+                &self,
+                py: Python<'py>,
+                dtype: Option<Bound<'py, PyAny>>
+            ) -> PyResult<Bound<'py, PyAny>> {
+                let np = py.import("numpy")?;
+                let data = PyList::new(py, [self.0.x, self.0.y, self.0.z])?;
+                match dtype {
+                    Some(dt) => np.call_method1("asarray", (data, dt)),
+                    None => np.call_method1("asarray", (data,)),
+                }
             }
 
             pub fn __add__(&mut self, rhs: Bound<'_, PyAny>) -> PyResult<$py_class_name> {

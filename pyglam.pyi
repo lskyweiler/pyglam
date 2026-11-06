@@ -3,7 +3,6 @@
 
 import builtins
 import typing
-
 __all__ = [
     "DQuat",
     "DVec3",
@@ -30,36 +29,49 @@ class DQuat:
     def w(self) -> builtins.float: ...
     @w.setter
     def w(self, value: builtins.float) -> None: ...
-    def __new__(
-        cls, x: builtins.float, y: builtins.float, z: builtins.float, w: builtins.float
-    ) -> DQuat:
+    def __new__(cls, x: builtins.float, y: builtins.float, z: builtins.float, w: builtins.float) -> DQuat:
         r"""
         Create a new quaternion from components.
         Usually you want `from_axis_angle` or `from_rotation_arc` instead of this
-
+        
         # Arguments
-
+        
         - `x` (`float`) - x component
         - `y` (`float`) - y component
         - `z` (`float`) - z component
         - `w` (`float`) - scalar component
-
+        
         # Returns
-
+        
         - `PyResult<Self>` - Describe the return value.
+        """
+    def __unpack_dump__(self) -> list:
+        r"""
+        Serializes as [x, y, z, w]
+        """
+    @staticmethod
+    def __unpack_load__(value: list) -> DQuat: ...
+    @staticmethod
+    def identity() -> DQuat:
+        r"""
+        Construct an identity quaternion
+        """
+    def __array__(self, dtype: typing.Optional[typing.Any] = None) -> typing.Any:
+        r"""
+        numpy array protocol, lets `np.array([DQuat, ...])` produce an (N, 4) array [[X, Y, Z, W]]
         """
     @staticmethod
     def from_axis_angle(axis: DVec3, angle: builtins.float) -> DQuat:
         r"""
         Create a new quaternion from an axis and angle
-
+        
         # Arguments
-
+        
         - `axis` (`vec3`) - Axis, should be normalized
         - `angle` (`float`) - Angle in radians
-
+        
         # Returns
-
+        
         - `PyResult<Self>` - Quaternion describing this axis/angle rotation
         """
     @staticmethod
@@ -67,58 +79,56 @@ class DQuat:
         r"""
         Gets the minimal rotation for transforming `from` to `to`.  The rotation is in the
         plane spanned by the two vectors.  Will rotate at most 180 degrees.
-
+        
         `from_rotation_arc(from, to) * from ≈ to`.
-
+        
         For near-singular cases (from≈to and from≈-to) the current implementation
         is only accurate to about 0.001 (for `f32`).
-
+        
         # Arguments
-
+        
         - `from_` (`vec3`) - starting vector. Must be a unit vector
         - `to` (`vec3`) - ending vector. Must be a unit vector
-
+        
         # Returns
-
+        
         - `PyResult<Self>` - Returns a quaternion that would rotate vector from onto to
         """
-    def to_tuple(
-        self,
-    ) -> tuple[builtins.float, builtins.float, builtins.float, builtins.float]:
+    def to_tuple(self) -> tuple[builtins.float, builtins.float, builtins.float, builtins.float]:
         r"""
         Convert this quat to a 4 component tuple
-
+        
         # Returns
-
+        
         - `(float, float, float, float)` - XYZW tuple
         """
     def __mul__(self, rhs: typing.Any) -> typing.Union[DQuat, DVec3]:
         r"""
         Multiply this quaternion with either another quaternion or a vector
-
+        
         A quaternion multiplication means combining two rotations into a single rotation
         A vector multiplication yields a rotated vec3
-
+        
         # Arguments
-
+        
         - `rhs` (`Bound<'_, PyAny>`) - Quat or Vec to multiply
-
+        
         # Returns
-
+        
         - `PyResult<Either<, >>` - Either a new rotation or a rotated vector
         """
     def __rmul__(self, lhs: typing.Any) -> typing.Union[DQuat, DVec3]:
         r"""
         Multiply this quaternion with either another quaternion or a vec3
-
+        
         Order doesn't matter for multiplying a vector and a quat, but order matters for multiplying two quats
-
+        
         # Arguments
-
+        
         - `lhs` (`Bound<'_, PyAny>`) - left hand side multiplicand
-
+        
         # Returns
-
+        
         - `PyResult<Either<, >>` - Either a quat equivalent to the combined rotation or a rotated vector
         """
     def normalize(self) -> DQuat:
@@ -148,24 +158,26 @@ class DVec3:
     def z(self) -> builtins.float: ...
     @z.setter
     def z(self, value: builtins.float) -> None: ...
-    def __new__(
-        cls,
-        x: builtins.float,
-        y: typing.Optional[builtins.float] = None,
-        z: typing.Optional[builtins.float] = None,
-    ) -> DVec3: ...
+    def __new__(cls, x: builtins.float, y: typing.Optional[builtins.float] = None, z: typing.Optional[builtins.float] = None) -> DVec3: ...
     @staticmethod
     def rand_uv() -> DVec3:
         r"""
         Generates a random unit vector, normalized to 1.
         """
+    def __unpack_dump__(self) -> list: ...
+    @staticmethod
+    def __unpack_load__(value: list) -> DVec3: ...
     def to_tuple(self) -> tuple[builtins.float, builtins.float, builtins.float]:
         r"""
         Convert this vector to a 3 component tuple
-
+        
         # Returns
-
+        
         - `(float, float, float)` - XYZ tuple
+        """
+    def __array__(self, dtype: typing.Optional[typing.Any] = None) -> typing.Any:
+        r"""
+        numpy array protocol, lets `np.array([DVec3, ...])` produce an (N, 3) array [[X, Y, Z]]
         """
     def __add__(self, rhs: typing.Any) -> DVec3: ...
     def __radd__(self, lhs: typing.Any) -> DVec3: ...
@@ -184,3 +196,4 @@ class DVec3:
     def length(self) -> builtins.float: ...
     def dot(self, rhs: typing.Any) -> builtins.float: ...
     def cross(self, rhs: typing.Any) -> DVec3: ...
+

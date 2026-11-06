@@ -32,9 +32,12 @@ macro_rules! vec3_glam_wrapper {
         )]
         #[cfg_attr(
             all(feature = "pyo3", feature = "set-pyclass-module"),
-            pyclass(module = "pyglam")
+            pyclass(module = "pyglam", from_py_object)
         )]
-        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
+        #[cfg_attr(
+            all(feature = "pyo3", not(feature = "set-pyclass-module")), 
+            pyclass(from_py_object))
+        ]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "serde",
@@ -94,6 +97,28 @@ macro_rules! vec3_glam_wrapper {
                 let z: $var_type = value.get_item(2)?.extract()?;
                 let w: $var_type = value.get_item(3)?.extract()?;
                 Ok(Self::py_new(x, y, z, w))
+            }
+
+            /// Construct an identity quaternion
+            #[staticmethod]
+            fn identity<'py>() -> PyResult<Self> {
+                Ok(Self::py_new(0., 0., 0., 1.))
+            }
+
+            /// numpy array protocol, lets `np.array([DQuat, ...])` produce an (N, 4) array [[X, Y, Z, W]]
+            #[cfg(feature = "numpy")]
+            #[pyo3(signature = (dtype=None))]
+            fn __array__<'py>(
+                &self,
+                py: Python<'py>,
+                dtype: Option<Bound<'py, PyAny>>
+            ) -> PyResult<Bound<'py, PyAny>> {
+                let np = py.import("numpy")?;
+                let data = PyList::new(py, [self.0.x, self.0.y, self.0.z, self.0.w])?;
+                match dtype {
+                    Some(dt) => np.call_method1("asarray", (data, dt)),
+                    None => np.call_method1("asarray", (data,)),
+                }
             }
 
             #[getter]
