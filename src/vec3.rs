@@ -41,19 +41,18 @@ macro_rules! vec3_glam_wrapper {
         )]
         #[cfg_attr(
             all(feature = "pyo3", feature = "set-pyclass-module"),
-            pyclass(module = "pyglam", from_py_object)
+            pyclass(module = "pyglam")
         )]
         #[cfg_attr(
-            all(feature = "pyo3", not(feature = "set-pyclass-module")), 
-            pyclass(from_py_object))
+            all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)
         ]
         #[cfg_attr(
             feature = "py-ref",
-            derive(
-                simple_py_bevy::PyStructRef
-            )
+            derive(simple_py_bevy::PyStructRef)
         )]
-        #[cfg_attr(feature = "serde", derive(
+        #[cfg_attr(
+            feature = "serde",
+            derive(
                 serde::Deserialize,
                 serde::Serialize
             ),
@@ -503,6 +502,49 @@ macro_rules! vec3_glam_wrapper {
                         return Err(PyNotImplementedError::new_err(e));
                     }
                 }
+            }
+        }
+
+        /// Define a custom FromPyObject trait to allow passing objects between python modules
+        ///
+        /// * Examples
+        /// ```python
+        /// import pyglam
+        /// import foo
+        ///
+        /// a = pyglam.DVec3(100.)
+        /// b = pyglam.DVec3(500.)
+        ///
+        /// actual = foo.add(a, b)   #> a and b are copied into the foo.DVec3 type. a foo.DVec3 object is returned
+        ///
+        /// assert actual.x == 600.
+        /// assert actual.y == 600.
+        /// assert actual.z == 600.
+        /// assert actual.__module__ == "pyglam"
+        /// ```
+        ///
+        /// * Shortcoming of this approach
+        ///  1. data is copied
+        ///  2. you're not actually returning share_core for downstream projects, you're returning downstream::share_core::DVec3.
+        ///          This is a problem if downstream was compiled against a different version
+        ///
+        /// * A better approach would be to use PyCapsules
+        ///     This would require major refactoring as pyo3::pyclass doens't make sharing a pyclass possible.
+        ///        You need a thin wrapper to pass over the ffi
+        ///
+        impl<'a, 'py> FromPyObject<'a, 'py> for $py_class_name {
+            type Error = PyErr;
+            fn extract(v: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
+                let x: Bound<'_, PyFloat> = v.getattr("x")?.cast_into()?;
+                let y: Bound<'_, PyFloat> = v.getattr("y")?.cast_into()?;
+                let z: Bound<'_, PyFloat> = v.getattr("z")?.cast_into()?;
+                Ok($py_class_name(
+                    <$glam_class_name>::new(
+                        x.value() as $var_type,
+                        y.value() as $var_type,
+                        z.value() as $var_type
+                    ),
+                ))
             }
         }
 

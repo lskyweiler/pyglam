@@ -3,7 +3,11 @@ use crate::vec3;
 use either::Either;
 use glam;
 #[cfg(feature = "pyo3")]
-use pyo3::{exceptions::PyNotImplementedError, prelude::*, types::PyList};
+use pyo3::{
+    exceptions::PyNotImplementedError,
+    prelude::*,
+    types::{PyFloat, PyList},
+};
 use std::ops::{Deref, DerefMut, Mul};
 
 /// Supported types for vector operations on other vecs where scalars don't make sense
@@ -26,18 +30,12 @@ enum QuatOpsEnum {
 macro_rules! vec3_glam_wrapper {
     ($py_class_name: ident, $py_vec_class_name: ty, $glam_class_name: ty,$glam_vec_class_name: ty, $var_type: ty) => {
         /// 4 Component Quaternion wxyz
-        #[cfg_attr(
-            feature = "pyo3",
-            pyo3_stub_gen::derive::gen_stub_pyclass,
-        )]
+        #[cfg_attr(feature = "pyo3", pyo3_stub_gen::derive::gen_stub_pyclass)]
         #[cfg_attr(
             all(feature = "pyo3", feature = "set-pyclass-module"),
-            pyclass(module = "pyglam", from_py_object)
+            pyclass(module = "pyglam")
         )]
-        #[cfg_attr(
-            all(feature = "pyo3", not(feature = "set-pyclass-module")), 
-            pyclass(from_py_object))
-        ]
+        #[cfg_attr(all(feature = "pyo3", not(feature = "set-pyclass-module")), pyclass)]
         #[cfg_attr(feature = "py-ref", derive(simple_py_bevy::PyStructRef))]
         #[cfg_attr(
             feature = "serde",
@@ -111,7 +109,7 @@ macro_rules! vec3_glam_wrapper {
             fn __array__<'py>(
                 &self,
                 py: Python<'py>,
-                dtype: Option<Bound<'py, PyAny>>
+                dtype: Option<Bound<'py, PyAny>>,
             ) -> PyResult<Bound<'py, PyAny>> {
                 let np = py.import("numpy")?;
                 let data = PyList::new(py, [self.0.x, self.0.y, self.0.z, self.0.w])?;
@@ -320,6 +318,23 @@ macro_rules! vec3_glam_wrapper {
             /// If this is a unit quat, the conjugate is equal to the inverse of the rotation
             fn conjugate(&self) -> $py_class_name {
                 $py_class_name::new(self.0.conjugate())
+            }
+        }
+
+        /// See vec3.rs for more details
+        impl<'a, 'py> FromPyObject<'a, 'py> for $py_class_name {
+            type Error = PyErr;
+            fn extract(v: Borrowed<'a, 'py, PyAny>) -> PyResult<Self> {
+                let x: Bound<'_, PyFloat> = v.getattr("x")?.cast_into()?;
+                let y: Bound<'_, PyFloat> = v.getattr("y")?.cast_into()?;
+                let z: Bound<'_, PyFloat> = v.getattr("z")?.cast_into()?;
+                let w: Bound<'_, PyFloat> = v.getattr("w")?.cast_into()?;
+                Ok($py_class_name(<$glam_class_name>::from_xyzw(
+                    x.value() as $var_type,
+                    y.value() as $var_type,
+                    z.value() as $var_type,
+                    w.value() as $var_type,
+                )))
             }
         }
 

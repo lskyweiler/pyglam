@@ -1,6 +1,6 @@
 [package]
 name = "pyglam"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 either = "1.18"
-pyo3 = { version = "0.29", default-features = false, features = [
+pyo3 = { version = "0.30", default-features = false, features = [
     "either",
     "extension-module",
 ], optional = true }
