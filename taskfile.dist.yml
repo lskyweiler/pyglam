@@ -7,6 +7,12 @@ tasks:
     desc: build the dev version of the package
     cmds:
       - uv run maturin dev -r
+      - task: test
+  
+  test:
+    desc: Run python-side unit tests
+    cmds:
+      - uv run pytest test/
 
   gen-stubs:
     desc: Generate py-stubs
